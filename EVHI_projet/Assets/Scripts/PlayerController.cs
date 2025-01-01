@@ -10,10 +10,16 @@ public class PlayerController : MonoBehaviour
     public float resistance = 0.98f; // Résistance de l'eau, réduit la vitesse progressivement
 
     private Rigidbody2D rb;
+    private SpriteRenderer sr;
+
+    private bool is_flip = false;
+
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        sr = GetComponent<SpriteRenderer>();
+
     }
 
     void Update()
@@ -31,14 +37,28 @@ public class PlayerController : MonoBehaviour
         // Coup de pagaie droite
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
+            if (is_flip)
+            {
+                Flip(false);
+            }
             paddle(Vector2.left);
         }
 
         // Coup de pagaie à gauche
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
+            if (!is_flip)
+            {
+                Flip(true);
+            }
             paddle(Vector2.right);
         }
+    }
+
+    void Flip(bool flip)
+    {
+        sr.flipX = flip;
+        is_flip = flip;
     }
 
     void paddle(Vector2 direction)

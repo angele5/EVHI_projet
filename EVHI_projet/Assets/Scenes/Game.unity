@@ -139,7 +139,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!61 &475117025
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -247,7 +247,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 4, y: 0, z: -3}
-  m_LocalScale: {x: 1, y: 50, z: 1}
+  m_LocalScale: {x: 1, y: 10, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -284,9 +284,11 @@ MonoBehaviour:
   player: {fileID: 710710613}
   riverPrefab: {fileID: 2149704403165791012, guid: 559c93ef4075541af900b38909caf1da, type: 3}
   edgePrefab: {fileID: 439402451512981728, guid: 2a30855ecd5054ae1921256c007878a7, type: 3}
-  length: 50
+  leftCurvePrefab: {fileID: 0}
+  rightCurvePrefab: {fileID: 0}
+  length: 10
   river_width: 8
-  edge_width: 2
+  edge_width: 2.5
   segments_ahead: 5
   segments_behind: 2
 --- !u!4 &515946332
@@ -576,7 +578,7 @@ BoxCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0.04084587, y: -0.04377082}
   m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
+    border: {x: 0.41, y: 0.08, z: 0.31, w: 0.17}
     pivot: {x: 0.5, y: 0.5}
     oldSize: {x: 2.25, y: 2.25}
     newSize: {x: 1, y: 2}
@@ -731,7 +733,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 439402451512981728, guid: 2a30855ecd5054ae1921256c007878a7, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6242973587696578572, guid: 2a30855ecd5054ae1921256c007878a7, type: 3}
       propertyPath: m_LocalPosition.x
@@ -792,11 +794,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2149704403165791012, guid: 559c93ef4075541af900b38909caf1da, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5444603254773552196, guid: 559c93ef4075541af900b38909caf1da, type: 3}
       propertyPath: m_LocalScale.y
-      value: 50
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 5444603254773552196, guid: 559c93ef4075541af900b38909caf1da, type: 3}
       propertyPath: m_LocalPosition.x
