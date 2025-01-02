@@ -8,5 +8,6 @@ public class MenuController : MonoBehaviour
         // Charger la scène du jeu
        // SceneManager.LoadScene("Calibration");
        SceneManager.LoadScene("Game");
+ 
     }
 }
