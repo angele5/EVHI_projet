@@ -67,6 +67,7 @@
     <Compile Include="Assets/Scripts/RiverGenerator.cs" />
     <Compile Include="Assets/Scripts/MenuController.cs" />
     <Compile Include="Assets/Scripts/PlayerController.cs" />
+    <Compile Include="Assets/Scripts/BarScript.cs" />
     <Compile Include="Assets/Scripts/CameraController.cs" />
   </ItemGroup>
   <ItemGroup>
