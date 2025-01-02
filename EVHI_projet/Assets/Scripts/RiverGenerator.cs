@@ -5,6 +5,7 @@ using UnityEngine;
 public class RiverGenerator : MonoBehaviour
 {
     public GameObject player;
+    public GameObject holder;
     public GameObject riverPrefab; 
     public GameObject edgePrefab;
     public float length = 10f; // Longueur d'un segment
@@ -65,6 +66,11 @@ public class RiverGenerator : MonoBehaviour
         rightEdge.transform.position = new Vector3(river_width / 2 + edge_width / 2, zPosition, 0);
         rightEdge.transform.localScale = new Vector3(edge_width, length, 1);
         right_edges.AddLast(rightEdge);
+
+        // Parente les objets générés
+        riverSegment.transform.parent = holder.transform;
+        leftEdge.transform.parent = holder.transform;
+        rightEdge.transform.parent = holder.transform;
     }
 
     void destroy_segment()
