@@ -589,10 +589,11 @@ MonoBehaviour:
   riverMeshFilter: {fileID: 1089996795}
   player: {fileID: 710710613}
   segmentLength: 2
-  curveIntensity: 1
-  initialSegments: 20
-  distanceBeforeDestroy: 10
-  distanceBeforeGenerate: 20
+  segemntWidth: 6
+  curveIntensity: 7
+  initialSegments: 10
+  distanceBeforeDestroy: 11
+  distanceBeforeGenerate: 30
 --- !u!4 &515946332
 Transform:
   m_ObjectHideFlags: 0
@@ -651,7 +652,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0.19215688, g: 0.4745098, b: 0.19455805, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1907,6 +1908,10 @@ PrefabInstance:
     - target: {fileID: 1776738886439263480, guid: b66ed2170b3294023bcffef08e9fd757, type: 3}
       propertyPath: m_Name
       value: RiverHolder
+      objectReference: {fileID: 0}
+    - target: {fileID: 1776738886439263480, guid: b66ed2170b3294023bcffef08e9fd757, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7945924524355458382, guid: b66ed2170b3294023bcffef08e9fd757, type: 3}
       propertyPath: m_LocalPosition.x

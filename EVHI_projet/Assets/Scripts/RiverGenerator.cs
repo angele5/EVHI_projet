@@ -14,6 +14,8 @@ public class RiverGenerator : MonoBehaviour
 
     // Paramètres de génération de la rivière
     public float segmentLength = 2f;  // Longueur entre chaque segment
+
+    public float segemntWidth = 6f;
     public float curveIntensity = 5f;  // Intensité de la courbure
     public int initialSegments = 10;  // Nombre de segments au départ
     public float distanceBeforeDestroy = 20f; // Distance avant qu'une section de rivière soit détruite
@@ -36,7 +38,7 @@ public class RiverGenerator : MonoBehaviour
         // La rivière ne se déplace que lorsque le joueur se déplace
         if (player.transform.position.y > lastPlayerYPos) // Si le joueur se déplace vers le bas (ou avance)
         {
-            ExtendRiver(); // Ajoute de nouveaux segments
+           // ExtendRiver(); // Ajoute de nouveaux segments
             RemoveOldSections(); // Supprime les anciens segments
             GenerateRiverMesh(); // Met à jour le maillage de la rivière
         }
@@ -46,40 +48,43 @@ public class RiverGenerator : MonoBehaviour
     }
 
     void InitializeRiver()
+{
+    float y = player.transform.position.y - 10; // Position de départ au niveau du joueur
+
+    for (int i = 0; i < initialSegments; i++)
     {
-        // Initialise les points de départ de la rivière
-        float y = 0;
-        for (int i = 0; i < initialSegments; i++)
-        {
-            // Création d'une courbure sinusoïdale
-            float xOffset = Mathf.Sin(i * 0.5f) * curveIntensity;
+        // Calcule un offset symétrique pour les bords gauche et droit
+        float xOffset = Mathf.Sin(i * 0.5f) * curveIntensity;
+        Debug.Log("xoffset "+xOffset);
 
-            // Ajoute des points pour la berge gauche et droite
-            leftPoints.Add(new Vector2(-3 + xOffset, y));
-            rightPoints.Add(new Vector2(3 + xOffset, y));
 
-            y += segmentLength; // Incrémentation de la position verticale
-        }
+        // Définit les points gauche et droit symétriques autour de x = 0
+        leftPoints.Add(new Vector2(-segemntWidth + xOffset, y));
+        rightPoints.Add(new Vector2(xOffset, y));
 
-        // Met à jour les LineRenderers et EdgeColliders avec les points générés
-        UpdateLineRenderers();
-        UpdateEdgeColliders();
+        y += segmentLength; // Incrément de la position verticale
     }
+
+    // Met à jour les LineRenderers et EdgeColliders
+    UpdateLineRenderers();
+    UpdateEdgeColliders();
+}
+
 
     void ExtendRiver()
     {
-        // Ajoute de nouveaux segments à la rivière à l'avant
         float y = leftPoints[leftPoints.Count - 1].y + segmentLength;
         float xOffset = Mathf.Sin(y * 0.1f) * curveIntensity;
 
-        // Ajout d'un nouveau segment pour les deux bords
-        leftPoints.Add(new Vector2(-3 + xOffset, y));
-        rightPoints.Add(new Vector2(3 + xOffset, y));
+        // Ajout de points symétriques autour de x = 0
+        leftPoints.Add(new Vector2(-segemntWidth + xOffset, y));
+        rightPoints.Add(new Vector2(xOffset, y));
 
         // Met à jour les LineRenderers et EdgeColliders
         UpdateLineRenderers();
         UpdateEdgeColliders();
     }
+
 
     void RemoveOldSections()
     {
