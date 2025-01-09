@@ -38,7 +38,6 @@ public class RiverGenerator : MonoBehaviour
         // La rivière ne se déplace que lorsque le joueur se déplace
         if (player.transform.position.y > lastPlayerYPos) // Si le joueur se déplace vers le bas (ou avance)
         {
-           // ExtendRiver(); // Ajoute de nouveaux segments
             RemoveOldSections(); // Supprime les anciens segments
             GenerateRiverMesh(); // Met à jour le maillage de la rivière
         }
@@ -55,8 +54,6 @@ public class RiverGenerator : MonoBehaviour
     {
         // Calcule un offset symétrique pour les bords gauche et droit
         float xOffset = Mathf.Sin(i * 0.5f) * curveIntensity;
-        Debug.Log("xoffset "+xOffset);
-
 
         // Définit les points gauche et droit symétriques autour de x = 0
         leftPoints.Add(new Vector2(-segemntWidth + xOffset, y));
