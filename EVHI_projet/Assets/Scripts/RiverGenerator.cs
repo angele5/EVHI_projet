@@ -4,96 +4,176 @@ using UnityEngine;
 
 public class RiverGenerator : MonoBehaviour
 {
-    public GameObject player;
-    public GameObject holder;
-    public GameObject riverPrefab; 
-    public GameObject edgePrefab;
-    public float length = 10f; // Longueur d'un segment
-    public float river_width = 8f; // Largeur de la rivière
-    public float edge_width = 2.5f; // Largeur de la berge
-    public int segments_ahead = 5; // Nombre de segments à générer devant le joueur
-    public int segments_behind = 2; // Nombre de segments à garder derrière le joueur
+    // Références aux composants
+    public LineRenderer leftLineRenderer;  // Pour la berge gauche
+    public LineRenderer rightLineRenderer; // Pour la berge droite
+    public EdgeCollider2D leftEdgeCollider; // Collider de la berge gauche
+    public EdgeCollider2D rightEdgeCollider; // Collider de la berge droite
+    public MeshFilter riverMeshFilter; // MeshFilter pour la surface de la rivière
+    public GameObject player; // Référence au GameObject du joueur
 
-    private LinkedList<GameObject> river_segments = new LinkedList<GameObject>();
-    private LinkedList<GameObject> left_edges = new LinkedList<GameObject>();
-    private LinkedList<GameObject> right_edges = new LinkedList<GameObject>();
+    // Paramètres de génération de la rivière
+    public float segmentLength = 2f;  // Longueur entre chaque segment
+    public float curveIntensity = 5f;  // Intensité de la courbure
+    public int initialSegments = 10;  // Nombre de segments au départ
+    public float distanceBeforeDestroy = 20f; // Distance avant qu'une section de rivière soit détruite
+    public float distanceBeforeGenerate = 10f; // Distance avant de générer une nouvelle section de rivière
 
-    private float lastGeneratedZ = 0f; // Position du dernier segment généré
+    private List<Vector2> leftPoints = new List<Vector2>(); // Liste des points de la berge gauche
+    private List<Vector2> rightPoints = new List<Vector2>(); // Liste des points de la berge droite
+    private Mesh riverMesh; // Le maillage pour la surface de la rivière
+    private float lastPlayerYPos; // Dernière position Y du joueur
 
     void Start()
     {
-        // Génère les segments initiaux
-        for (int i = -segments_behind; i <= segments_ahead; i++)
-        {
-            generate_segment(i *length);
-        }
+        lastPlayerYPos = player.transform.position.y; // Sauvegarde la position Y du joueur au démarrage
+        InitializeRiver(); // Initialise la rivière avec quelques segments
+        GenerateRiverMesh(); // Crée la surface de la rivière
     }
 
     void Update()
     {
-        float playerZ = player.transform.position.y;
-
-        // Génère les segments à venir
-        while (playerZ + segments_ahead * length > lastGeneratedZ)
+        // La rivière ne se déplace que lorsque le joueur se déplace
+        if (player.transform.position.y > lastPlayerYPos) // Si le joueur se déplace vers le bas (ou avance)
         {
-            generate_segment(lastGeneratedZ + length);
-            lastGeneratedZ += length;
+            ExtendRiver(); // Ajoute de nouveaux segments
+            RemoveOldSections(); // Supprime les anciens segments
+            GenerateRiverMesh(); // Met à jour le maillage de la rivière
         }
 
-        // Supprime les segments derrière le joueur
-        while (river_segments.First != null && playerZ - segments_behind * length > river_segments.First.Value.transform.position.y + length)
+        // Sauvegarde la nouvelle position Y du joueur
+        lastPlayerYPos = player.transform.position.y;
+    }
+
+    void InitializeRiver()
+    {
+        // Initialise les points de départ de la rivière
+        float y = 0;
+        for (int i = 0; i < initialSegments; i++)
         {
-            destroy_segment();
+            // Création d'une courbure sinusoïdale
+            float xOffset = Mathf.Sin(i * 0.5f) * curveIntensity;
+
+            // Ajoute des points pour la berge gauche et droite
+            leftPoints.Add(new Vector2(-3 + xOffset, y));
+            rightPoints.Add(new Vector2(3 + xOffset, y));
+
+            y += segmentLength; // Incrémentation de la position verticale
+        }
+
+        // Met à jour les LineRenderers et EdgeColliders avec les points générés
+        UpdateLineRenderers();
+        UpdateEdgeColliders();
+    }
+
+    void ExtendRiver()
+    {
+        // Ajoute de nouveaux segments à la rivière à l'avant
+        float y = leftPoints[leftPoints.Count - 1].y + segmentLength;
+        float xOffset = Mathf.Sin(y * 0.1f) * curveIntensity;
+
+        // Ajout d'un nouveau segment pour les deux bords
+        leftPoints.Add(new Vector2(-3 + xOffset, y));
+        rightPoints.Add(new Vector2(3 + xOffset, y));
+
+        // Met à jour les LineRenderers et EdgeColliders
+        UpdateLineRenderers();
+        UpdateEdgeColliders();
+    }
+
+    void RemoveOldSections()
+    {
+        // Supprime les sections qui sont trop éloignées du joueur (hors de la vue de la caméra)
+        if (leftPoints.Count > 0 && leftPoints[0].y < player.transform.position.y - distanceBeforeDestroy)
+        {
+            leftPoints.RemoveAt(0); // Retirer le premier point (le plus ancien)
+            rightPoints.RemoveAt(0); // Retirer le premier point (le plus ancien)
+
+            // Met à jour les LineRenderers et EdgeColliders
+            UpdateLineRenderers();
+            UpdateEdgeColliders();
+        }
+
+        // Générer de nouveaux segments si nécessaire
+        if (leftPoints[leftPoints.Count - 1].y < player.transform.position.y + distanceBeforeGenerate)
+        {
+            ExtendRiver();
         }
     }
 
-    void generate_segment(float zPosition)
+    void UpdateLineRenderers()
     {
-        // Génère un segment de rivière
-        GameObject riverSegment = Instantiate(riverPrefab);
-        riverSegment.transform.position = new Vector3(0, zPosition, 0);
-        riverSegment.transform.localScale = new Vector3(river_width, length, 1);
-        river_segments.AddLast(riverSegment);
+        // Mise à jour du LineRenderer pour la berge gauche
+        leftLineRenderer.positionCount = leftPoints.Count;
+        for (int i = 0; i < leftPoints.Count; i++)
+        {
+            leftLineRenderer.SetPosition(i, leftPoints[i]);
+        }
 
-        // Génère une berge à gauche
-        GameObject leftEdge = Instantiate(edgePrefab);
-        leftEdge.transform.position = new Vector3(-river_width / 2 - edge_width / 2, zPosition, 0);
-        leftEdge.transform.localScale = new Vector3(edge_width, length, 1);
-        left_edges.AddLast(leftEdge);
-
-        // Génère une berge à droite
-        GameObject rightEdge = Instantiate(edgePrefab);
-        rightEdge.transform.position = new Vector3(river_width / 2 + edge_width / 2, zPosition, 0);
-        rightEdge.transform.localScale = new Vector3(edge_width, length, 1);
-        right_edges.AddLast(rightEdge);
-
-        // Parente les objets générés
-        riverSegment.transform.parent = holder.transform;
-        leftEdge.transform.parent = holder.transform;
-        rightEdge.transform.parent = holder.transform;
+        // Mise à jour du LineRenderer pour la berge droite
+        rightLineRenderer.positionCount = rightPoints.Count;
+        for (int i = 0; i < rightPoints.Count; i++)
+        {
+            rightLineRenderer.SetPosition(i, rightPoints[i]);
+        }
     }
 
-    void destroy_segment()
+    void UpdateEdgeColliders()
     {
-        // Supprime un segment de rivière
-        if (river_segments.First != null)
+        // Mise à jour des colliders avec les points des berges
+        leftEdgeCollider.points = leftPoints.ToArray();
+        rightEdgeCollider.points = rightPoints.ToArray();
+    }
+
+    void GenerateRiverMesh()
+    {
+        // Si le maillage n'existe pas, créez-le
+        if (riverMesh == null)
         {
-            Destroy(river_segments.First.Value);
-            river_segments.RemoveFirst();
+            riverMesh = new Mesh();
+            riverMeshFilter.mesh = riverMesh;
         }
 
-        // Supprime une berge à gauche
-        if (left_edges.First != null)
+        // Efface le maillage actuel pour éviter les problèmes de superposition
+        riverMesh.Clear();
+
+        // Crée une liste de vertices (points) pour la surface de la rivière
+        List<Vector3> vertices = new List<Vector3>();
+        for (int i = 0; i < leftPoints.Count; i++)
         {
-            Destroy(left_edges.First.Value);
-            left_edges.RemoveFirst();
+            vertices.Add(leftPoints[i]);  // Ajoute un point pour la berge gauche
+            vertices.Add(rightPoints[i]); // Ajoute un point pour la berge droite
         }
 
-        // Supprime une berge à droite
-        if (right_edges.First != null)
+        // Crée une liste d'indices pour définir les triangles (faces) du maillage
+        List<int> triangles = new List<int>();
+        for (int i = 0; i < leftPoints.Count - 1; i++)
         {
-            Destroy(right_edges.First.Value);
-            right_edges.RemoveFirst();
+            int startIndex = i * 2;
+
+            // Crée des triangles pour la surface entre les deux bords
+            triangles.Add(startIndex);
+            triangles.Add(startIndex + 2);
+            triangles.Add(startIndex + 1);
+
+            triangles.Add(startIndex + 1);
+            triangles.Add(startIndex + 2);
+            triangles.Add(startIndex + 3);
         }
+
+        // Crée des UVs (optionnel, pour appliquer des textures)
+        List<Vector2> uvs = new List<Vector2>();
+        for (int i = 0; i < vertices.Count; i++)
+        {
+            uvs.Add(new Vector2(vertices[i].x, vertices[i].y)); // Définir les coordonnées UV
+        }
+
+        // Applique les données au maillage
+        riverMesh.vertices = vertices.ToArray();
+        riverMesh.triangles = triangles.ToArray();
+        riverMesh.uv = uvs.ToArray();
+
+        // Recalcule les normales du maillage pour une meilleure gestion des ombres
+        riverMesh.RecalculateNormals();
     }
 }
