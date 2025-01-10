@@ -243,7 +243,7 @@ LineRenderer:
   - {x: 0, y: 0, z: 1}
   m_Parameters:
     serializedVersion: 3
-    widthMultiplier: 1
+    widthMultiplier: 0
     widthCurve:
       serializedVersion: 2
       m_Curve:
@@ -593,7 +593,7 @@ MonoBehaviour:
   curveIntensity: 2
   initialSegments: 10
   distanceBeforeDestroy: 11
-  distanceBeforeGenerate: 30
+  distanceBeforeGenerate: 20
 --- !u!4 &515946332
 Transform:
   m_ObjectHideFlags: 0

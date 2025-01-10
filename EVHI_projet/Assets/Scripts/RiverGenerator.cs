@@ -53,7 +53,7 @@ public class RiverGenerator : MonoBehaviour
     for (int i = 0; i < initialSegments; i++)
     {
         // Calcule un offset symétrique pour les bords gauche et droit
-        float xOffset = Mathf.Sin(i * 0.5f) * curveIntensity;
+        float xOffset = Mathf.Sin(i * 0.1f) * curveIntensity;
 
         // Définit les points gauche et droit symétriques autour de x = 0
         leftPoints.Add(new Vector2(-segemntWidth + xOffset, y));
