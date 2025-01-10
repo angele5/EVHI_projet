@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    public PlayerModel playerModel;
     public float acceleration = 3f; // Force du coup de pagaie
     public float max_speed = 10f; // Vitesse maximale
     public float rotationForce = 0.4f; // Force de rotation par coup de pagaie
@@ -46,7 +47,7 @@ public class PlayerController : MonoBehaviour
     {
         // Gestion des inputs
         // Si on appuie sur la touche droite
-        if (Input.GetKey(KeyCode.RightArrow))
+        if (Input.GetKey(KeyCode.RightArrow) || playerModel.isRight)
         {
             time_since_right_true += Time.deltaTime;
             time_since_left_true = 0;
@@ -59,7 +60,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // Si on appuie sur la touche gauche
-        if (Input.GetKey(KeyCode.LeftArrow))
+        if (Input.GetKey(KeyCode.LeftArrow) || playerModel.isLeft)
         {
             time_since_left_true += Time.deltaTime;
             time_since_right_true = 0;

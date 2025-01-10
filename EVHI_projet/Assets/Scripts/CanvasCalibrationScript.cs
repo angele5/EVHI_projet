@@ -32,13 +32,14 @@ public class CanvasCalibrationScript : MonoBehaviour
 
         // Sauvegarde le nom du profil actuel
         PlayerPrefs.SetString("PROFILE_ACTUEL", profileName);
+        PlayerPrefs.SetString(profileName, "");
         PlayerPrefs.Save();
         Debug.Log("PROFILE_ACTUEL : " + PlayerPrefs.GetString("PROFILE_ACTUEL"));
         if (PlayerPrefs.HasKey(profileName))
         {
             checkProfilePanel.SetActive(true);
         }
-        else
+        else 
         {
             calibrationPanel.SetActive(true);
         }
