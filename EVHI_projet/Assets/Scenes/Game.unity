@@ -741,7 +741,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &693696626
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -952,6 +952,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84b598658c33c4e51bfce03b3a55c102, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerModel: {fileID: 1800762177}
   acceleration: 3
   max_speed: 10
   rotationForce: 0.4
@@ -1777,6 +1778,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rightThreshold: 0.5
   leftThreshold: -0.5
+  isRight: 0
+  isLeft: 0
   coordinationLevel: 0
   dodgeLevel: 0
 --- !u!4 &1800762178
