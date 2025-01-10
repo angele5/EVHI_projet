@@ -590,7 +590,7 @@ MonoBehaviour:
   player: {fileID: 710710613}
   segmentLength: 2
   segemntWidth: 6
-  curveIntensity: 7
+  curveIntensity: 2
   initialSegments: 10
   distanceBeforeDestroy: 11
   distanceBeforeGenerate: 30
