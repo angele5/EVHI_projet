@@ -620,7 +620,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   askProfilePanel: {fileID: 408723101}
   calibrationPanel: {fileID: 733364996}
-  checkProfilePanel: {fileID: 0}
+  checkProfilePanel: {fileID: 1428948433}
 --- !u!1 &259694160
 GameObject:
   m_ObjectHideFlags: 0

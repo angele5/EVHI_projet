@@ -14,6 +14,9 @@ public class PlayerController : MonoBehaviour
     public bool can_paddle_left = true;
     public bool can_paddle_right = true;
 
+    public float coll = 5f;
+    public float angle_coll = 0.05f;
+
     public BarScript leftBarScript;
     public BarScript rightBarScript;
 
@@ -161,5 +164,20 @@ public class PlayerController : MonoBehaviour
         // reduit vitesse lineaire et angulaire pour simuler la résistance de l'eau
         rb.velocity *= resistance;
         rb.angularVelocity *= resistance;
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.collider != null) //si collision
+        {
+            //  direction  centre de la rivière
+            Vector2 river_center_dir = (new Vector2(0, 10) - (Vector2)transform.position).normalized;
+
+            float angle = Vector2.SignedAngle(transform.up, river_center_dir);
+            rb.AddTorque(angle * angle_coll, ForceMode2D.Impulse); // Ajustez 0.1f pour influencer la rotation
+
+            // Appliquer la force de recul dans la direction finale
+            rb.AddForce(river_center_dir * coll, ForceMode2D.Impulse);
+        }
     }
 }
