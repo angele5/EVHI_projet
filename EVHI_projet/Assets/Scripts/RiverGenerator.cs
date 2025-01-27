@@ -31,6 +31,7 @@ public class RiverGenerator : MonoBehaviour
         lastPlayerYPos = player.transform.position.y; // Sauvegarde la position Y du joueur au démarrage
         InitializeRiver(); // Initialise la rivière avec quelques segments
         GenerateRiverMesh(); // Crée la surface de la rivière
+
     }
 
     void Update()
@@ -169,6 +170,8 @@ public class RiverGenerator : MonoBehaviour
         {
             uvs.Add(new Vector2(vertices[i].x, vertices[i].y)); // Définir les coordonnées UV
         }
+
+
 
         // Applique les données au maillage
         riverMesh.vertices = vertices.ToArray();

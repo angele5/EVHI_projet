@@ -961,6 +961,8 @@ MonoBehaviour:
   time_redo_same: 0.3
   can_paddle_left: 1
   can_paddle_right: 1
+  coll: 5
+  angle_coll: 0.05
   leftBarScript: {fileID: 2058585899}
   rightBarScript: {fileID: 857432382}
 --- !u!61 &710710618
@@ -1274,7 +1276,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: e6b9b13809c2b41be9c108d63d9b2ffa, type: 2}
+  - {fileID: 2100000, guid: 6b25a9bf9e7b148708ac536b9a94c14a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
