@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class PlayerModel : MonoBehaviour
 {
-    public float rightThreshold = 0.5f;
-    public float leftThreshold = 0.5f;
+    public float rightThreshold = 510f;
+    public float leftThreshold = 510f;
 
     public bool isRight = true;
     public bool isLeft = false;
