@@ -839,6 +839,7 @@ GameObject:
   - component: {fileID: 710710616}
   - component: {fileID: 710710618}
   - component: {fileID: 710710617}
+  - component: {fileID: 710710619}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1010,6 +1011,22 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.6852616, y: 2.0141673}
   m_EdgeRadius: 0
+--- !u!114 &710710619
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 710710613}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a0a29a6377509e4090181eea0d8a852, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  deviceMacAddress: BTH20:18:08:08:02:30
+  samplingRate: 100
+  resolution: 16
+  playerModel: {fileID: 1800762177}
 --- !u!1 &857432380
 GameObject:
   m_ObjectHideFlags: 0
@@ -1778,8 +1795,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0bad7b43c200883489cbd8b6e1fdeba1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rightThreshold: 0.5
-  leftThreshold: -0.5
+  rightThreshold: 510
+  leftThreshold: 510
   isRight: 0
   isLeft: 0
   coordinationLevel: 0
