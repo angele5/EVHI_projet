@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class PlayerController : MonoBehaviour
 {
@@ -31,10 +33,18 @@ public class PlayerController : MonoBehaviour
     private bool isTouchingObstacle = false;
     private Vector2 obstaclePosition;
 
+    // score
+    private Vector2 previousPosition;
+    public TextMeshProUGUI scoreText;
+
+
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
+        playerModel.score = 0;
+        previousPosition = rb.position;
 
     }
 
@@ -46,6 +56,7 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         apply_resistance();
+        update_score();
     }
 
     void handle_input()
@@ -181,11 +192,25 @@ public class PlayerController : MonoBehaviour
         rb.angularVelocity *= resistance;
     }
 
+    void update_score()
+    {
+        float distanceTravelled = Vector2.Distance(previousPosition, rb.position);
+        float speedFactor = rb.velocity.magnitude; // Plus la vitesse est élevée, plus le score augmente rapidement
+        
+        float scoreIncrement = distanceTravelled * speedFactor * 5f;
+
+        playerModel.score += Mathf.RoundToInt(scoreIncrement);
+        previousPosition = rb.position; // Mettre à jour la position précédente
+
+        scoreText.text = ""+Mathf.RoundToInt(playerModel.score);
+    }
+
     void OnCollisionEnter2D(Collision2D collision)
     {
 
         if (collision.collider != null) //si collision
         {
+            playerModel.score -= 15;
             isTouchingObstacle = true;
             obstaclePosition = collision.contacts[0].point; 
 

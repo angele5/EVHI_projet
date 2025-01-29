@@ -12,4 +12,10 @@ public class PlayerModel : MonoBehaviour
 
     public float coordinationLevel = 0.0f;
     public float dodgeLevel = 0.0f;
+
+    public bool fatigue = false;
+
+    public int score;
+
+
 }
