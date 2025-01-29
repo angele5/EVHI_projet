@@ -33,11 +33,14 @@ public class RiverGenerator : MonoBehaviour
     private Mesh riverMesh; // Le maillage pour la surface de la rivière
     private float lastPlayerYPos; // Dernière position Y du joueur
 
+    public PlayerModel playerModel;
+
     void Start()
     {
         lastPlayerYPos = player.transform.position.y; // Sauvegarde la position Y du joueur au démarrage
         obstacleMinOffset = - segemntWidth /2 + 0.5f;
         obstacleMaxOffset =  segemntWidth /2 - 0.5f;
+        maxObstacles = 0;
         InitializeRiver(); // Initialise la rivière avec quelques segments
         GenerateRiverMesh(); // Crée la surface de la rivière
 
@@ -48,6 +51,7 @@ public class RiverGenerator : MonoBehaviour
         // La rivière ne se déplace que lorsque le joueur se déplace
         if (player.transform.position.y > lastPlayerYPos) // Si le joueur se déplace vers le bas (ou avance)
         {
+            UpdateDiff();
             RemoveOldSections(); // Supprime les anciens segments
             GenerateRiverMesh(); // Met à jour le maillage de la rivière
         }
@@ -56,27 +60,30 @@ public class RiverGenerator : MonoBehaviour
         lastPlayerYPos = player.transform.position.y;
     }
 
-    void InitializeRiver()
-{
-    float y = player.transform.position.y - 10; // Position de départ au niveau du joueur
-
-    for (int i = 0; i < initialSegments; i++)
-    {
-        // Calcule un offset symétrique pour les bords gauche et droit
-        float xOffset = Mathf.Sin(i * 0.1f) * curveIntensity;
-
-        // Définit les points gauche et droit symétriques autour de x = 0
-        leftPoints.Add(new Vector2(-segemntWidth + xOffset, y));
-        rightPoints.Add(new Vector2(xOffset, y));
-
-        y += segmentLength; // Incrément de la position verticale
+    void UpdateDiff(){
+        maxObstacles += Mathf.RoundToInt(Mathf.Min(playerModel.coordinationLevel,playerModel.dodgeLevel) / 2);
     }
 
-    // Met à jour les LineRenderers et EdgeColliders
-    UpdateLineRenderers();
-    UpdateEdgeColliders();
-}
+    void InitializeRiver()
+    {
+        float y = player.transform.position.y - 10; // Position de départ au niveau du joueur
 
+        for (int i = 0; i < initialSegments; i++)
+        {
+            // Calcule un offset symétrique pour les bords gauche et droit
+            float xOffset = Mathf.Sin(i * 0.1f) * curveIntensity;
+
+            // Définit les points gauche et droit symétriques autour de x = 0
+            leftPoints.Add(new Vector2(-segemntWidth + xOffset, y));
+            rightPoints.Add(new Vector2(xOffset, y));
+
+            y += segmentLength; // Incrément de la position verticale
+        }
+
+        // Met à jour les LineRenderers et EdgeColliders
+        UpdateLineRenderers();
+        UpdateEdgeColliders();
+    }
 
     void ExtendRiver()
     {
@@ -105,7 +112,6 @@ public class RiverGenerator : MonoBehaviour
         
         obstacles.Add(newObstacle); // liste obstacles
     }
-
 
     void RemoveOldSections()
     {

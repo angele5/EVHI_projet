@@ -37,6 +37,11 @@ public class PlayerController : MonoBehaviour
     private Vector2 previousPosition;
     public TextMeshProUGUI scoreText;
 
+    //adaptation
+    public int dist_adapt = 50;
+    private float dist_since_adapt =0;
+    private int obstacleCount =0;
+
 
 
     void Start()
@@ -44,7 +49,9 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
         playerModel.score = 0;
+        playerModel.dodgeLevel = 10f;
         previousPosition = rb.position;
+        resistance = 0.98f;
 
     }
 
@@ -57,6 +64,11 @@ public class PlayerController : MonoBehaviour
     {
         apply_resistance();
         update_score();
+        if (dist_since_adapt > dist_adapt){
+            dist_since_adapt =0f;
+            update_difficulty();
+        }
+        
     }
 
     void handle_input()
@@ -205,6 +217,16 @@ public class PlayerController : MonoBehaviour
         scoreText.text = ""+Mathf.RoundToInt(playerModel.score);
     }
 
+    void update_difficulty(){
+        if (obstacleCount > 1){
+            playerModel.dodgeLevel = Mathf.Max(10f - obstacleCount, 1f); // Le dodgeLevel diminue
+        }
+        else{
+            playerModel.dodgeLevel += 3;
+        }
+        
+        resistance = Mathf.Max(Mathf.Min(resistance - playerModel.dodgeLevel*0.1f - playerModel.coordinationLevel * 0.02f, 1.5f),0.5f); //
+    }
     void OnCollisionEnter2D(Collision2D collision)
     {
 
