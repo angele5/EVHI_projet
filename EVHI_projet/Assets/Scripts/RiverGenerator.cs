@@ -12,9 +12,16 @@ public class RiverGenerator : MonoBehaviour
     public MeshFilter riverMeshFilter; // MeshFilter pour la surface de la rivière
     public GameObject player; // Référence au GameObject du joueur
 
+    // gestion obstacles
+    public GameObject obstaclePrefab;
+    public int maxObstacles = 5;
+    public float proba0bs = 0.3f;
+    private float obstacleMinOffset;
+    private float obstacleMaxOffset;
+    List<GameObject> obstacles = new List<GameObject>();
+
     // Paramètres de génération de la rivière
     public float segmentLength = 2f;  // Longueur entre chaque segment
-
     public float segemntWidth = 6f;
     public float curveIntensity = 5f;  // Intensité de la courbure
     public int initialSegments = 10;  // Nombre de segments au départ
@@ -29,6 +36,8 @@ public class RiverGenerator : MonoBehaviour
     void Start()
     {
         lastPlayerYPos = player.transform.position.y; // Sauvegarde la position Y du joueur au démarrage
+        obstacleMinOffset = - segemntWidth /2 + 0.5f;
+        obstacleMaxOffset =  segemntWidth /2 - 0.5f;
         InitializeRiver(); // Initialise la rivière avec quelques segments
         GenerateRiverMesh(); // Crée la surface de la rivière
 
@@ -78,9 +87,23 @@ public class RiverGenerator : MonoBehaviour
         leftPoints.Add(new Vector2(-segemntWidth + xOffset, y));
         rightPoints.Add(new Vector2(xOffset, y));
 
+        if (obstacles.Count < maxObstacles && Random.value < proba0bs)
+        {
+            CreateObstacle(y);
+        }
+
         // Met à jour les LineRenderers et EdgeColliders
         UpdateLineRenderers();
         UpdateEdgeColliders();
+    }
+
+    void CreateObstacle(float yPosition)
+    {
+        float xPosition = Random.Range(obstacleMinOffset, obstacleMaxOffset);
+        
+        GameObject newObstacle = Instantiate(obstaclePrefab, new Vector3(xPosition, yPosition, -2), Quaternion.identity);
+        
+        obstacles.Add(newObstacle); // liste obstacles
     }
 
 
@@ -95,6 +118,15 @@ public class RiverGenerator : MonoBehaviour
             // Met à jour les LineRenderers et EdgeColliders
             UpdateLineRenderers();
             UpdateEdgeColliders();
+        }
+
+        for (int i = obstacles.Count - 1; i >= 0; i--)  //parcours obstacles pour supp si trop bas
+        {
+            if (obstacles[i].transform.position.y < player.transform.position.y - distanceBeforeDestroy)
+            {
+                Destroy(obstacles[i]);
+                obstacles.RemoveAt(i);
+            }
         }
 
         // Générer de nouveaux segments si nécessaire

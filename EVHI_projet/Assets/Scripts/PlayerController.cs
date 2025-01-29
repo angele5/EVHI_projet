@@ -14,10 +14,7 @@ public class PlayerController : MonoBehaviour
     public bool can_paddle_left = true;
     public bool can_paddle_right = true;
 
-    //public float coll = 5f;
-    //public float angle_coll = 0.05f;
-
-    public float knockbackForce =2f;
+    public float knockbackForce =2f;  //Recule collision
 
     public BarScript leftBarScript;
     public BarScript rightBarScript;
