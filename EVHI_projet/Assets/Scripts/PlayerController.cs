@@ -14,8 +14,10 @@ public class PlayerController : MonoBehaviour
     public bool can_paddle_left = true;
     public bool can_paddle_right = true;
 
-    public float coll = 5f;
-    public float angle_coll = 0.05f;
+    //public float coll = 5f;
+    //public float angle_coll = 0.05f;
+
+    public float knockbackForce =2f;
 
     public BarScript leftBarScript;
     public BarScript rightBarScript;
@@ -28,6 +30,9 @@ public class PlayerController : MonoBehaviour
     private float time_since_right_true = 0f;
     private float time_since_left_false = 0f;
     private float time_since_right_false = 0f;
+
+    private bool isTouchingObstacle = false;
+    private Vector2 obstaclePosition;
 
     void Start()
     {
@@ -143,6 +148,19 @@ public class PlayerController : MonoBehaviour
     void paddle(Vector2 direction)
     {
         float rotation;
+
+        if (isTouchingObstacle && Vector2.Dot(transform.up, Vector2.up) > 0.7f) // Kayak vers le haut
+        {
+            Vector2 obstacleDir = ((Vector2)transform.position - obstaclePosition).normalized;
+
+            // Détermine si le coup de pagaie est du côté de l'obstacle
+            if ((direction == Vector2.left && obstacleDir.x < 0) || (direction == Vector2.right && obstacleDir.x > 0))
+            {
+                // Pousse légèrement vers l'opposé de l'obstacle
+                rb.AddForce(obstacleDir * knockbackForce, ForceMode2D.Impulse);
+                return; // On empêche le mouvement normal pour ce coup
+            }
+        }
         // Applique avance
         if (rb.velocity.magnitude < max_speed)
         {
@@ -168,16 +186,38 @@ public class PlayerController : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
+
         if (collision.collider != null) //si collision
         {
-            //  direction  centre de la rivière
+            isTouchingObstacle = true;
+            obstaclePosition = collision.contacts[0].point; 
+
             Vector2 river_center_dir = (new Vector2(0, 10) - (Vector2)transform.position).normalized;
 
-            float angle = Vector2.SignedAngle(transform.up, river_center_dir);
-            rb.AddTorque(angle * angle_coll, ForceMode2D.Impulse); // Ajustez 0.1f pour influencer la rotation
+            // Vérifier si le kayak est à l'envers (tête en bas)
+            float angleWithUp = Vector2.SignedAngle(transform.up, Vector2.up);
+            
+            if (Mathf.Abs(angleWithUp) > 120f) // Si le kayak est quasiment à l'envers
+            {
+                // Réinitialisation du kayak au centre avec la tête en haut
+                rb.velocity = Vector2.zero;
+                rb.angularVelocity = 0f;
+                transform.rotation = Quaternion.Euler(0, 0, 0); // Aligné vers le haut
+                return; // Sortir de la fonction pour éviter d'appliquer d'autres forces
+            }
 
-            // Appliquer la force de recul dans la direction finale
-            rb.AddForce(river_center_dir * coll, ForceMode2D.Impulse);
+
+            Vector2 knockbackDirection = (transform.position - collision.transform.position).normalized;
+            rb.velocity = Vector2.zero;
+            // Applique une force de recul au Rigidbody2D du joueur
+            rb.AddForce(knockbackDirection * knockbackForce, ForceMode2D.Impulse);
+
         }
     }
+
+    void OnCollisionExit2D(Collision2D collision)
+    {
+        isTouchingObstacle = false; // On n'est plus en contact avec l'obstacle
+    }
+
 }
