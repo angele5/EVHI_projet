@@ -467,6 +467,7 @@ MonoBehaviour:
   initialSegments: 10
   distanceBeforeDestroy: 11
   distanceBeforeGenerate: 20
+  playerModel: {fileID: 1800762177}
 --- !u!4 &515946332
 Transform:
   m_ObjectHideFlags: 0
@@ -838,6 +839,7 @@ MonoBehaviour:
   leftBarScript: {fileID: 2058585899}
   rightBarScript: {fileID: 857432382}
   scoreText: {fileID: 1268754917}
+  dist_adapt: 50
 --- !u!61 &710710618
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1236,7 +1238,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -85, y: 184}
+  m_AnchoredPosition: {x: 8, y: 184}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1268754917
@@ -1293,7 +1295,7 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
+  m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
