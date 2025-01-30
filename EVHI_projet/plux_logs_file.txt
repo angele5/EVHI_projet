@@ -7,3 +7,11 @@ Digital input event - Clock source: 2  Clock value: 0  New input state: 0
 New Event raised: 3
 Digital input event - Clock source: 2  Clock value: 0  New input state: 0
 onInterrupt
+abort_threads: Failed aborting id: 00000000000097B4, mono_thread_manage will ignore it
+
+abort_threads: Failed aborting id: 000000000000713C, mono_thread_manage will ignore it
+
+abort_threads: Failed aborting id: 00000000000097B4, mono_thread_manage will ignore it
+
+abort_threads: Failed aborting id: 000000000000713C, mono_thread_manage will ignore it
+

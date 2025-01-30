@@ -1705,8 +1705,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0bad7b43c200883489cbd8b6e1fdeba1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rightThreshold: 510
-  leftThreshold: 510
+  rightThreshold: 0.01
+  leftThreshold: 0.01
   isRight: 0
   isLeft: 0
   coordinationLevel: 0

@@ -16,7 +16,9 @@ public class BitalinoScript : MonoBehaviour
     public List<string> domains = new List<string>() { "BTH" };
     public string deviceMacAddress = "BTH20:18:08:08:02:30";
     public int samplingRate = 100;
-    public int resolution = 16;
+    public int resolution = 10;
+    private const double LOW_CUTOFF = 20.0; // Fréquence de coupure basse (Hz)
+    private const double HIGH_CUTOFF = 500.0; // Fréquence de coupure haute (Hz)
     public PlayerModel playerModel;
 
 
@@ -27,10 +29,10 @@ public class BitalinoScript : MonoBehaviour
     private bool isConnecting = false;
     private bool isAcquisitionStarted = false;
 
-    private List<int> leftBuffer = new List<int>();
-    private List<int> rightBuffer = new List<int>();
-
-
+    private List<double> leftBuffer = new List<double>();
+    private List<double> rightBuffer = new List<double>();
+    private ButterworthFilter leftFilter;
+    private ButterworthFilter rightFilter;
 
 
     // Start is called before the first frame update
@@ -41,6 +43,11 @@ public class BitalinoScript : MonoBehaviour
 
         // Important call for debug purposes by creating a log file in the root directory of the project.
         pluxDevManager.WelcomeFunctionUnity();
+
+        // Create the Butterworth filters
+        leftFilter = new ButterworthFilter(samplingRate, LOW_CUTOFF, HIGH_CUTOFF);
+        rightFilter = new ButterworthFilter(samplingRate, LOW_CUTOFF, HIGH_CUTOFF);
+
     }
 
     // Update function, being constantly invoked by Unity.
@@ -169,61 +176,75 @@ public class BitalinoScript : MonoBehaviour
         }
     }
 
+    private double CalculateRMS(List<double> signal)
+    {
+        double sum = 0;
+        foreach (double value in signal)
+        {
+            sum += value * value;
+        }
+
+        return Math.Sqrt(sum / signal.Count);
+    }
+
+
     // Callback that receives the data acquired from the PLUX devices that are streaming real-time data.
     // nSeq -> Number of sequence identifying the number of the current package of data.
     // data -> Package of data containing the RAW data samples collected from each active channel ([sample_first_active_channel, sample_second_active_channel,...]).
     public void OnDataReceived(int nSeq, int[] data)
     {
 
-        int channel1 = data[0]; // left quality
-        int channel2 = data[1]; // Left arm
-        int channel3 = data[2]; // right quality
-        int channel4 = data[3]; // Right arm
+        double channel1 = data[0]; // left quality
+        double channel2 = data[1]; // Left arm
+        double channel3 = data[2]; // right quality
+        double channel4 = data[3]; // Right arm
 
-        // If left buffer is full, remove the first element
-        if (leftBuffer.Count == 50)
-        {
-            leftBuffer.RemoveAt(0);
-        }
+        // Normalisation du signal en tension
+        channel2 = (channel2 - 512) * (3.3 / 1023.0);
+        channel4 = (channel4 - 512) * (3.3 / 1023.0);         
 
-        // If right buffer is full, remove the first element
-        if (rightBuffer.Count == 50)
-        {
-            rightBuffer.RemoveAt(0);
-        }
+        // Filtrage passe-bande
+        channel2 = leftFilter.Apply(channel2);
+        channel4 = rightFilter.Apply(channel4);
+
+        // Valeur absolue
+        channel2 = Math.Abs(channel2);
+        channel4 = Math.Abs(channel4);
+
+        //Debug.Log("Left: " + channel2 + " Right: " + channel4);
 
         // Add the new value to the left buffer
-        if (channel1 >= 3){
+        if (channel1 >= 1){
+            if (leftBuffer.Count == 50){
+                leftBuffer.RemoveAt(0);
+            }
             leftBuffer.Add(channel2);
         } 
 
         // Add the new value to the right buffer
-        if (channel3 >= 3){
+        if (channel3 >= 1){
+            if (rightBuffer.Count == 50){
+                rightBuffer.RemoveAt(0);
+            }
             rightBuffer.Add(channel4);
         }
 
-        // Calculate the average of the left buffer
-        float leftAverage = 0;
-        foreach (int value in leftBuffer)
+        double leftRMS = -10;
+        if (leftBuffer.Count > 0)
         {
-            leftAverage += value;
+            leftRMS = CalculateRMS(leftBuffer);
         }
 
-        leftAverage /= leftBuffer.Count;
-
-        // Calculate the average of the right buffer
-        float rightAverage = 0;
-        foreach (int value in rightBuffer)
+        double rightRMS = -10;
+        if (rightBuffer.Count > 0)
         {
-            rightAverage += value;
+            rightRMS = CalculateRMS(rightBuffer);
         }
-
-        rightAverage /= rightBuffer.Count;
 
         // Update the player model
-        Debug.Log("Left average: " + leftAverage + " Right average: " + rightAverage + " Calibrateur Gauche: " + channel1 + " Calibrateur Droit: " + channel3); 
+        Debug.Log("Left RMS: " + leftRMS + " Right RMS: " + rightRMS + " BufferLeft: " + leftBuffer.Count + " BufferRight: " + rightBuffer.Count); 
         // If the leftAverage is over the leftThreshold, the player is moving to the left
-        if (leftAverage > playerModel.leftThreshold)
+        if (leftRMS > playerModel.leftThreshold)
         {
             playerModel.isLeft = true;
         }else
@@ -232,7 +253,7 @@ public class BitalinoScript : MonoBehaviour
         }
 
         // If the rightAverage is over the rightThreshold, the player is moving to the right
-        if (rightAverage > playerModel.rightThreshold)
+        if (rightRMS > playerModel.rightThreshold)
         {
             playerModel.isRight = true;
         }else
@@ -240,12 +261,12 @@ public class BitalinoScript : MonoBehaviour
             playerModel.isRight = false;
         }
 
-        // Show the current package of data.
-        string outputString = "Acquired Data "+nSeq+":\n";
-        for (int j = 0; j < data.Length; j++)
-        {
-            outputString += data[j] + "\t";
-        }
+        // // Show the current package of data.
+        // string outputString = "Acquired Data "+nSeq+":\n";
+        // for (int j = 0; j < data.Length; j++)
+        // {
+        //     outputString += data[j] + "\t";
+        // }
 
         // Show the values in the GUI.
         // Debug.Log(outputString);
@@ -270,5 +291,41 @@ public class BitalinoScript : MonoBehaviour
             // PluxDeviceManager.PluxDigInUpdateEvent digInEvent = (pluxEvent as PluxDeviceManager.PluxDigInUpdateEvent);
             // Debug.Log("Digital Input Update Event Detected on channel " + digInEvent.channel + ". Current state: " + digInEvent.state);
         }
+    }
+}
+
+
+// Classe pour un filtre Butterworth passe-bande
+class ButterworthFilter
+{
+    private double[] a, b;
+    private double[] x, y;
+
+    public ButterworthFilter(int sampleRate, double lowCutoff, double highCutoff)
+    {
+        double nyquist = sampleRate / 2.0;
+        double low = lowCutoff / nyquist;
+        double high = highCutoff / nyquist;
+
+        // Coefficients de filtre de Butterworth (ordre 2)
+        b = new double[] { 0.2929, 0, -0.2929 };
+        a = new double[] { 1, -0.5858, 0.1716 };
+
+        x = new double[3];
+        y = new double[3];
+    }
+
+    public double Apply(double input)
+    {
+        x[2] = x[1];
+        x[1] = x[0];
+        x[0] = input;
+
+        y[2] = y[1];
+        y[1] = y[0];
+
+        y[0] = b[0] * x[0] + b[1] * x[1] + b[2] * x[2] - a[1] * y[1] - a[2] * y[2];
+
+        return y[0];
     }
 }
