@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
 
 public class BitalinoScript : MonoBehaviour
 {
@@ -26,13 +27,22 @@ public class BitalinoScript : MonoBehaviour
     private bool isScanFinished = false;
     private bool isScanning = false;
     private bool isConnectionDone = false;
-    private bool isConnecting = false;
+    private bool isConnecting = false; 
     private bool isAcquisitionStarted = false;
 
     private List<double> leftBuffer = new List<double>();
     private List<double> rightBuffer = new List<double>();
     private ButterworthFilter leftFilter;
     private ButterworthFilter rightFilter;
+
+    private List<double> leftContractions = new List<double>();
+    private List<double> rightContractions = new List<double>();
+    private bool isLeftContraction = false;
+    private bool isRightContraction = false;
+    private List<double> leftContractionBuffer = new List<double>();
+    private List<double> rightContractionBuffer = new List<double>();
+    private bool addedLeft = false;
+    private bool addedRight = false;
 
 
     // Start is called before the first frame update
@@ -187,6 +197,32 @@ public class BitalinoScript : MonoBehaviour
         return Math.Sqrt(sum / signal.Count);
     }
 
+    public static bool DetectFatigue(List<double> emgValues, int windowSize = 5, double threshold = 0.05)
+    {
+        if (emgValues == null || emgValues.Count < windowSize)
+            return false;
+
+        List<double> movingAverages = new List<double>();
+
+        // Calcul de la moyenne mobile
+        for (int i = 0; i <= emgValues.Count - windowSize; i++)
+        {
+            double avg = emgValues.Skip(i).Take(windowSize).Average();
+            movingAverages.Add(avg);
+        }
+
+        // Vérifier si la tendance est décroissante sur les dernières valeurs
+        int decreasingCount = 0;
+        for (int i = 1; i < movingAverages.Count; i++)
+        {
+            if (movingAverages[i] < movingAverages[i - 1] * (1 - threshold)) 
+                decreasingCount++;
+        }
+        // Debug.Log("Decreasing count: " + decreasingCount + " Total count: " + movingAverages.Count);
+        // Considérer la fatigue si une tendance à la baisse est détectée
+        return decreasingCount > movingAverages.Count * 0.5; // x % des points doivent être en baisse
+    }
+
 
     // Callback that receives the data acquired from the PLUX devices that are streaming real-time data.
     // nSeq -> Number of sequence identifying the number of the current package of data.
@@ -214,7 +250,7 @@ public class BitalinoScript : MonoBehaviour
         //Debug.Log("Left: " + channel2 + " Right: " + channel4);
 
         // Add the new value to the left buffer
-        if (channel1 >= 1){
+        if (channel1 >= 0){
             if (leftBuffer.Count == 50){
                 leftBuffer.RemoveAt(0);
             }
@@ -222,7 +258,7 @@ public class BitalinoScript : MonoBehaviour
         } 
 
         // Add the new value to the right buffer
-        if (channel3 >= 1){
+        if (channel3 >= 0){
             if (rightBuffer.Count == 50){
                 rightBuffer.RemoveAt(0);
             }
@@ -242,25 +278,72 @@ public class BitalinoScript : MonoBehaviour
         }
 
         // Update the player model
-        Debug.Log("Left RMS: " + leftRMS + " Right RMS: " + rightRMS + " BufferLeft: " + leftBuffer.Count + " BufferRight: " + rightBuffer.Count); 
+        // Debug.Log("Left RMS: " + leftRMS + " Right RMS: " + rightRMS + " BufferLeft: " + leftBuffer.Count + " BufferRight: " + rightBuffer.Count); 
         // If the leftAverage is over the leftThreshold, the player is moving to the left
         if (leftRMS > playerModel.leftThreshold)
         {
             playerModel.isLeft = true;
+            leftContractionBuffer.Add(leftRMS); // Ajout de la data dans le buffer d'une contraction a gauche
+            isLeftContraction = true;
+
         }else
         {
             playerModel.isLeft = false;
+            if (isLeftContraction) // Fin de la contraction a gauche
+            {
+                if (leftContractionBuffer.Count > 50)
+                {
+                    leftContractions.Add(leftContractionBuffer.Average());
+                }
+                leftContractionBuffer.Clear();
+                isLeftContraction = false;
+                addedLeft = true; // Ajout de la contraction a gauche
+            }
         }
 
         // If the rightAverage is over the rightThreshold, the player is moving to the right
         if (rightRMS > playerModel.rightThreshold)
         {
             playerModel.isRight = true;
+            rightContractionBuffer.Add(rightRMS); // Ajout de la data dans le buffer d'une contraction a droite
+            isRightContraction = true;
         }else
         {
             playerModel.isRight = false;
+            if (isRightContraction) // Fin de la contraction a droite
+            {
+                if (rightContractionBuffer.Count > 50)
+                {
+                    rightContractions.Add(rightContractionBuffer.Average());
+                }
+                rightContractionBuffer.Clear();
+                isRightContraction = false;
+                addedRight = true; // Ajout de la contraction a droite
+            }
         }
 
+        if (addedLeft){
+            addedLeft = false;
+            bool fatigueLeft = DetectFatigue(leftContractions);
+            if (fatigueLeft)
+            {
+                Debug.Log("Fatigue détectée à gauche");
+            }
+
+        }
+
+        if (addedRight){
+            addedRight = false;
+            bool fatigueRight = DetectFatigue(rightContractions);
+            if (fatigueRight)
+            {
+                Debug.Log("Fatigue détectée à droite");
+            }
+
+        }
+
+        // Debug Nombre de contractions
+        // Debug.Log("Left contractions: " + leftContractions.Count + " Right contractions: " + rightContractions.Count);
         // // Show the current package of data.
         // string outputString = "Acquired Data "+nSeq+":\n";
         // for (int j = 0; j < data.Length; j++)
