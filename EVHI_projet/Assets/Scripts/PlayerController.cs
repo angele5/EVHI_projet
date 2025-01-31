@@ -58,8 +58,12 @@ public class PlayerController : MonoBehaviour
         playerModel.dodgeLevel = 10f;
         gameTime = 0f;
         previousPosition = rb.position;
+        obstacleCount =0;
         resistance = 0.98f;
+        dist_since_adapt = 0f;
+        Time.timeScale = 1f;
         gameOverScreen.SetActive(false);
+        ended=false;
 
     }
 
