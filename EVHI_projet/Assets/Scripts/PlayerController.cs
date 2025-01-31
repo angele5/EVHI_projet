@@ -42,7 +42,13 @@ public class PlayerController : MonoBehaviour
     private float dist_since_adapt =0;
     private int obstacleCount =0;
 
-
+    //fin du jeu
+    private float gameTime = 0f;  // Temps écoulé
+    public float maxGameTime = 120f; 
+    public GameObject gameOverScreen;
+    private bool ended = false;
+    public TextMeshProUGUI timerText;
+    public TextMeshProUGUI EndscoreText;
 
     void Start()
     {
@@ -50,14 +56,37 @@ public class PlayerController : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
         playerModel.score = 0;
         playerModel.dodgeLevel = 10f;
+        gameTime = 0f;
         previousPosition = rb.position;
         resistance = 0.98f;
+        gameOverScreen.SetActive(false);
 
     }
 
     void Update()
     {
-        handle_input();
+        if(!ended){
+            handle_input();
+            gameTime += Time.deltaTime;
+            float timeLeft = Mathf.Max(maxGameTime - gameTime, 0);
+            timerText.text = Mathf.CeilToInt(timeLeft)+"";
+            if (gameTime >= maxGameTime)
+            {
+                EndGame();
+            }
+
+        }
+        
+    }
+
+    void EndGame()
+    {
+        Debug.Log("Fin de la partie !");
+        ended = true;
+        Time.timeScale = 0f;
+        EndscoreText.text = "Ton score est "+Mathf.CeilToInt(playerModel.score);
+        gameOverScreen.SetActive(true); // Affiche l'écran de fin
+
     }
 
     private void FixedUpdate()
@@ -225,7 +254,7 @@ public class PlayerController : MonoBehaviour
             playerModel.dodgeLevel += 3;
         }
         
-        resistance = Mathf.Max(Mathf.Min(resistance - playerModel.dodgeLevel*0.1f - playerModel.coordinationLevel * 0.02f, 1.5f),0.5f); //
+        resistance = Mathf.Max(Mathf.Min(resistance - playerModel.dodgeLevel*0.1f - playerModel.coordinationLevel * 0.02f, 1.5f),0.95f); //
     }
     void OnCollisionEnter2D(Collision2D collision)
     {

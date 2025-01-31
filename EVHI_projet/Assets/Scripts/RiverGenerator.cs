@@ -106,8 +106,16 @@ public class RiverGenerator : MonoBehaviour
 
     void CreateObstacle(float yPosition)
     {
-        float xPosition = Random.Range(obstacleMinOffset, obstacleMaxOffset);
-        
+        int index = leftPoints.FindIndex(p => Mathf.Approximately(p.y, yPosition));
+        if (index == -1) return; // Sécurité : si l'index n'est pas trouvé, on ne crée pas d'obstacle
+
+        // Prend les positions des berges à ce niveau
+        float leftX = leftPoints[index].x;
+        float rightX = rightPoints[index].x;
+
+        // Génère un X entre la berge gauche et droite
+        float xPosition = Random.Range(leftX + 3f, rightX +2f);        
+            
         GameObject newObstacle = Instantiate(obstaclePrefab, new Vector3(xPosition, yPosition, -2), Quaternion.identity);
         
         obstacles.Add(newObstacle); // liste obstacles
