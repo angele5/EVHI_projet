@@ -20,6 +20,13 @@ public class RiverGenerator : MonoBehaviour
     private float obstacleMaxOffset;
     List<GameObject> obstacles = new List<GameObject>();
 
+    //fleurs
+    public GameObject flowerPrefab;  // Prefab pour la fleur
+    public float flowerOffset = 1.5f; // Distance à laquelle les fleurs apparaissent de chaque côté
+    public int maxFlowersPerSegment = 5; 
+    List<GameObject> flowers = new List<GameObject>(); // Liste des fleurs
+
+
     // Paramètres de génération de la rivière
     public float segmentLength = 2f;  // Longueur entre chaque segment
     public float segemntWidth = 6f;
@@ -113,6 +120,8 @@ public class RiverGenerator : MonoBehaviour
             CreateObstacle(y);
         }
 
+        CreateFlowers(y);
+
         // Met à jour les LineRenderers et EdgeColliders
         UpdateLineRenderers();
         UpdateEdgeColliders();
@@ -134,6 +143,26 @@ public class RiverGenerator : MonoBehaviour
         
         obstacles.Add(newObstacle); // liste obstacles
     }
+    void CreateFlowers(float yPosition)
+    {
+        // Choix aléatoire du nombre de fleurs à générer pour ce segment
+        float leftX = leftPoints[leftPoints.Count - 1].x;
+        float rightX = rightPoints[rightPoints.Count - 1].x;
+
+        if (Random.value < 0.5f)
+        {
+            float flowerXPosition = Random.Range(leftX +0.5f, leftX +1.5f); // A l'extérieur de la berge gauche
+            GameObject flower = Instantiate(flowerPrefab, new Vector3(flowerXPosition, yPosition, -2), Quaternion.identity);
+            flowers.Add(flower);
+        }
+
+        if (Random.value < 0.5f)
+        {
+            float flowerXPosition = Random.Range(rightX + 3.5f, rightX + 4.5f); // A l'extérieur de la berge droite
+            GameObject flower = Instantiate(flowerPrefab, new Vector3(flowerXPosition, yPosition, -2), Quaternion.identity);
+            flowers.Add(flower);
+        }
+    }
 
     void RemoveOldSections()
     {
@@ -154,6 +183,15 @@ public class RiverGenerator : MonoBehaviour
             {
                 Destroy(obstacles[i]);
                 obstacles.RemoveAt(i);
+            }
+        }
+
+        for (int i = flowers.Count - 1; i >= 0; i--)  // Parcours fleurs pour les supprimer si elles sont trop loin
+        {
+            if (flowers[i].transform.position.y < player.transform.position.y - distanceBeforeDestroy)
+            {
+                Destroy(flowers[i]);
+                flowers.RemoveAt(i);
             }
         }
 
