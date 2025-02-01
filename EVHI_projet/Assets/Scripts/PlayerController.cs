@@ -284,7 +284,7 @@ public class PlayerController : MonoBehaviour
 
         float speedFactor = rb.velocity.magnitude; // Plus la vitesse est élevée, plus le score augmente rapidement
         
-        float scoreIncrement = distanceTravelled * speedFactor * 5f;
+        float scoreIncrement = distanceTravelled * speedFactor * 5f * (1f + playerModel.coordinationLevel); // Score = distance * vitesse * 5
 
         playerModel.score += Mathf.RoundToInt(scoreIncrement);
         previousPosition = rb.position; // Mettre à jour la position précédente
@@ -345,6 +345,10 @@ public class PlayerController : MonoBehaviour
                 rb.velocity = Vector2.zero;
                 rb.angularVelocity = 0f;
                 transform.rotation = Quaternion.Euler(0, 0, 0); // Aligné vers le haut
+                
+                // Pénaliser le joueur
+                playerModel.score -= 10;
+
                 return; // Sortir de la fonction pour éviter d'appliquer d'autres forces
             }
 
