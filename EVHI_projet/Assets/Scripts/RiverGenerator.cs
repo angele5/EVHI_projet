@@ -62,6 +62,12 @@ public class RiverGenerator : MonoBehaviour
     }
 
     void UpdateDiff(){
+
+        if (playerModel.fatigue)
+        {
+            maxObstacles = 0;
+            return;
+        }
         float dodgeFactor = Mathf.Clamp01(playerModel.dodgeLevel / 20f); // Normalisation
         float coordFactor = playerModel.coordinationLevel;
 

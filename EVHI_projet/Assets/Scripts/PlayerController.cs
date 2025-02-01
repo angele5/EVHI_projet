@@ -45,6 +45,7 @@ public class PlayerController : MonoBehaviour
     private List<double> time_buffer_paddle = new List<double>();
     private bool just_paddled = false;
     private float optimal_time;
+    private bool isFatigueCoroutineRunning =false;
 
     //fin du jeu
     private float gameTime = 0f;  // Temps écoulé
@@ -74,6 +75,12 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         if(!ended){
+
+            if (playerModel.fatigue && !isFatigueCoroutineRunning)
+            {
+                StartCoroutine(HandleFatigue());
+                isFatigueCoroutineRunning = true;
+            }
             handle_input();
             gameTime += Time.deltaTime;
             tps_since_adapt += Time.deltaTime;
@@ -297,6 +304,25 @@ public class PlayerController : MonoBehaviour
         Debug.Log("resistance"+resistance);
         Debug.Log("dodgeLevel"+playerModel.dodgeLevel);
         Debug.Log("coord"+playerModel.coordinationLevel);
+    }
+
+    IEnumerator HandleFatigue()
+    {
+        float initialCoordination = playerModel.coordinationLevel;
+        float initialDodge = playerModel.dodgeLevel;
+        float initialResistance = resistance;
+
+        playerModel.dodgeLevel = 0; // Évite toute esquive pendant la fatigue
+        playerModel.coordinationLevel =0;
+        resistance = 0.98f;
+
+        yield return new WaitForSeconds(20f); // Attente de 20 secondes
+
+        playerModel.fatigue = false;
+        playerModel.coordinationLevel = initialCoordination / 2f;
+        playerModel.dodgeLevel = initialDodge / 2f;
+        resistance = (resistance + initialResistance)/2f;
+        isFatigueCoroutineRunning = false;
     }
     void OnCollisionEnter2D(Collision2D collision)
     {
