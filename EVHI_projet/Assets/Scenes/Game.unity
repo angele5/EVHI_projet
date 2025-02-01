@@ -444,7 +444,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &227136051
 RectTransform:
   m_ObjectHideFlags: 0
@@ -828,7 +828,7 @@ MonoBehaviour:
   curveIntensity: 2
   initialSegments: 10
   distanceBeforeDestroy: 11
-  distanceBeforeGenerate: 20
+  distanceBeforeGenerate: 11
   playerModel: {fileID: 1800762177}
 --- !u!4 &515946332
 Transform:
@@ -1203,7 +1203,7 @@ MonoBehaviour:
   leftBarScript: {fileID: 2058585899}
   rightBarScript: {fileID: 857432382}
   scoreText: {fileID: 1268754917}
-  tps_adapt: 50
+  tps_adapt: 10
   maxGameTime: 120
   gameOverScreen: {fileID: 227136050}
   timerText: {fileID: 1219433221}

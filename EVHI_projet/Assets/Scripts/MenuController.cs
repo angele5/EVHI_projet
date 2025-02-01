@@ -10,4 +10,10 @@ public class MenuController : MonoBehaviour
        SceneManager.LoadScene("Game");
  
     }
+
+    public void QuitGame()
+    {
+        Application.Quit(); //fonctionne quand le jeu exporte
+        Debug.Log("Game is over");
+    }
 }
