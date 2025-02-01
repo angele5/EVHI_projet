@@ -10,8 +10,8 @@ public class PlayerModel : MonoBehaviour
     public bool isRight = true;
     public bool isLeft = false;
 
-    public float coordinationLevel = 0.0f;
-    public float dodgeLevel = 0.0f;
+    public float coordinationLevel = 0.0f; //0~1
+    public float dodgeLevel = 0.0f; //0~
 
     public bool fatigue = false;
 

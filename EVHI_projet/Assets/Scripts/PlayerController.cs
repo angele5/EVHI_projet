@@ -38,10 +38,9 @@ public class PlayerController : MonoBehaviour
     public TextMeshProUGUI scoreText;
 
     //adaptation
-    public int dist_adapt = 50;
-    private float dist_since_adapt =0;
+    public int tps_adapt = 10;
+    private float tps_since_adapt =0f;
     private int obstacleCount =0;
-    
     private int len_time_buffer_paddle = 10;
     private List<double> time_buffer_paddle = new List<double>();
     private bool just_paddled = false;
@@ -60,16 +59,15 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
         playerModel.score = 0;
-        playerModel.dodgeLevel = 10f;
+        playerModel.dodgeLevel = 0f;
         gameTime = 0f;
         previousPosition = rb.position;
+        tps_since_adapt =0f; 
         obstacleCount =0;
         resistance = 0.98f;
-        dist_since_adapt = 0f;
         Time.timeScale = 1f;
         gameOverScreen.SetActive(false);
         ended=false;
-
         optimal_time = time_before_paddle*len_time_buffer_paddle;
     }
 
@@ -78,8 +76,13 @@ public class PlayerController : MonoBehaviour
         if(!ended){
             handle_input();
             gameTime += Time.deltaTime;
+            tps_since_adapt += Time.deltaTime;
+
             float timeLeft = Mathf.Max(maxGameTime - gameTime, 0);
-            timerText.text = Mathf.CeilToInt(timeLeft)+"";
+            int minutes = Mathf.FloorToInt(timeLeft / 60);
+            int seconds = Mathf.FloorToInt(timeLeft % 60);
+            timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+            
             if (gameTime >= maxGameTime)
             {
                 EndGame();
@@ -103,9 +106,10 @@ public class PlayerController : MonoBehaviour
     {
         apply_resistance();
         update_score();
-        if (dist_since_adapt > dist_adapt){
-            dist_since_adapt =0f;
+        if (tps_since_adapt > tps_adapt){
             update_difficulty();
+            tps_since_adapt =0f;
+            obstacleCount = 0;
         }
         
     }
@@ -270,6 +274,7 @@ public class PlayerController : MonoBehaviour
     void update_score()
     {
         float distanceTravelled = Vector2.Distance(previousPosition, rb.position);
+
         float speedFactor = rb.velocity.magnitude; // Plus la vitesse est élevée, plus le score augmente rapidement
         
         float scoreIncrement = distanceTravelled * speedFactor * 5f;
@@ -282,13 +287,16 @@ public class PlayerController : MonoBehaviour
 
     void update_difficulty(){
         if (obstacleCount > 1){
-            playerModel.dodgeLevel = Mathf.Max(10f - obstacleCount, 1f); // Le dodgeLevel diminue
+            playerModel.dodgeLevel = Mathf.Max(playerModel.dodgeLevel - obstacleCount, playerModel.dodgeLevel - 4,0f); // Le dodgeLevel diminue
         }
         else{
-            playerModel.dodgeLevel += 3;
+            playerModel.dodgeLevel = Mathf.Min(playerModel.dodgeLevel + 3, 20);
         }
         
-        resistance = Mathf.Max(Mathf.Min(resistance - playerModel.dodgeLevel*0.1f - playerModel.coordinationLevel * 0.02f, 1.5f),0.95f); //
+        resistance = Mathf.Max(Mathf.Min(resistance - playerModel.dodgeLevel*0.00002f - playerModel.coordinationLevel * 0.001f, 1.5f),0.95f); //
+        Debug.Log("resistance"+resistance);
+        Debug.Log("dodgeLevel"+playerModel.dodgeLevel);
+        Debug.Log("coord"+playerModel.coordinationLevel);
     }
     void OnCollisionEnter2D(Collision2D collision)
     {
@@ -297,6 +305,7 @@ public class PlayerController : MonoBehaviour
         {
             playerModel.score -= 15;
             isTouchingObstacle = true;
+            obstacleCount +=1;
             obstaclePosition = collision.contacts[0].point; 
 
             Vector2 river_center_dir = (new Vector2(0, 10) - (Vector2)transform.position).normalized;

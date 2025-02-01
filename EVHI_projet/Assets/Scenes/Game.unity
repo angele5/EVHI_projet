@@ -1203,7 +1203,7 @@ MonoBehaviour:
   leftBarScript: {fileID: 2058585899}
   rightBarScript: {fileID: 857432382}
   scoreText: {fileID: 1268754917}
-  dist_adapt: 50
+  tps_adapt: 50
   maxGameTime: 120
   gameOverScreen: {fileID: 227136050}
   timerText: {fileID: 1219433221}

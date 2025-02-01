@@ -32,7 +32,6 @@ public class RiverGenerator : MonoBehaviour
     private List<Vector2> rightPoints = new List<Vector2>(); // Liste des points de la berge droite
     private Mesh riverMesh; // Le maillage pour la surface de la rivière
     private float lastPlayerYPos; // Dernière position Y du joueur
-
     public PlayerModel playerModel;
 
     void Start()
@@ -41,6 +40,8 @@ public class RiverGenerator : MonoBehaviour
         obstacleMinOffset = - segemntWidth /2 + 0.5f;
         obstacleMaxOffset =  segemntWidth /2 - 0.5f;
         maxObstacles = 0;
+        proba0bs = 0.1f;
+
         InitializeRiver(); // Initialise la rivière avec quelques segments
         GenerateRiverMesh(); // Crée la surface de la rivière
 
@@ -61,7 +62,14 @@ public class RiverGenerator : MonoBehaviour
     }
 
     void UpdateDiff(){
-        maxObstacles += Mathf.RoundToInt(Mathf.Min(playerModel.coordinationLevel,playerModel.dodgeLevel) / 2);
+        float dodgeFactor = Mathf.Clamp01(playerModel.dodgeLevel / 20f); // Normalisation
+        float coordFactor = playerModel.coordinationLevel;
+
+        // Nombre maximal augmente fortement avec la coordination et l'évitement
+        maxObstacles = Mathf.RoundToInt(25 * coordFactor * dodgeFactor); // Entre 0 et 20
+
+        // Probabilité d'apparition des obstacles : augmente progressivement
+        proba0bs = Mathf.Lerp(0.1f, 0.9f, coordFactor * dodgeFactor); // Entre 10% et 90%
     }
 
     void InitializeRiver()
