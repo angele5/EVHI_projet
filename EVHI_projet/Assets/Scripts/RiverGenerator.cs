@@ -40,7 +40,7 @@ public class RiverGenerator : MonoBehaviour
         obstacleMinOffset = - segemntWidth /2 + 0.5f;
         obstacleMaxOffset =  segemntWidth /2 - 0.5f;
         maxObstacles = 0;
-        proba0bs = 0.1f;
+        proba0bs = 0.3f;
 
         InitializeRiver(); // Initialise la rivière avec quelques segments
         GenerateRiverMesh(); // Crée la surface de la rivière
@@ -69,7 +69,7 @@ public class RiverGenerator : MonoBehaviour
         maxObstacles = Mathf.RoundToInt(25 * coordFactor * dodgeFactor); // Entre 0 et 20
 
         // Probabilité d'apparition des obstacles : augmente progressivement
-        proba0bs = Mathf.Lerp(0.1f, 0.9f, coordFactor * dodgeFactor); // Entre 10% et 90%
+        proba0bs = Mathf.Lerp(0.3f, 0.9f, coordFactor * dodgeFactor); // Entre 10% et 90%
     }
 
     void InitializeRiver()
