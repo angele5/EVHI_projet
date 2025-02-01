@@ -392,6 +392,9 @@ MonoBehaviour:
   panel: {fileID: 94374388}
   canvas: {fileID: 693696628}
   isLeft: 1
+  isRight: 0
+  isTopLeft: 0
+  isTopRight: 0
 --- !u!1 &181504723
 GameObject:
   m_ObjectHideFlags: 0
@@ -441,7 +444,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &227136051
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1257,7 +1260,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 710710613}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a0a29a6377509e4090181eea0d8a852, type: 3}
   m_Name: 
@@ -1580,6 +1583,7 @@ GameObject:
   - component: {fileID: 1219433220}
   - component: {fileID: 1219433222}
   - component: {fileID: 1219433221}
+  - component: {fileID: 1219433223}
   m_Layer: 5
   m_Name: TimeLeft
   m_TagString: Untagged
@@ -1601,10 +1605,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 693696629}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1483, y: 993}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -125, y: -65}
+  m_SizeDelta: {x: 200, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1219433221
 MonoBehaviour:
@@ -1653,10 +1657,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 50
+  m_fontSize: 67.1
   m_fontSizeBase: 50
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -1703,6 +1707,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1219433219}
   m_CullTransparentMesh: 1
+--- !u!114 &1219433223
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1219433219}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7303735f51548f4996af9a1fdd99513, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  panel: {fileID: 1219433220}
+  canvas: {fileID: 693696628}
+  isLeft: 0
+  isRight: 0
+  isTopLeft: 0
+  isTopRight: 1
 --- !u!1 &1268754915
 GameObject:
   m_ObjectHideFlags: 0
@@ -1714,6 +1736,7 @@ GameObject:
   - component: {fileID: 1268754916}
   - component: {fileID: 1268754918}
   - component: {fileID: 1268754917}
+  - component: {fileID: 1268754919}
   m_Layer: 5
   m_Name: ScoreText
   m_TagString: Untagged
@@ -1735,10 +1758,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 693696629}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1141, y: 998}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 143, y: -61}
+  m_SizeDelta: {x: 200, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1268754917
 MonoBehaviour:
@@ -1787,10 +1810,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 50
+  m_fontSize: 67.1
   m_fontSizeBase: 50
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -1837,6 +1860,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1268754915}
   m_CullTransparentMesh: 1
+--- !u!114 &1268754919
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1268754915}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7303735f51548f4996af9a1fdd99513, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  panel: {fileID: 1268754916}
+  canvas: {fileID: 693696628}
+  isLeft: 0
+  isRight: 0
+  isTopLeft: 1
+  isTopRight: 0
 --- !u!1 &1361528164
 GameObject:
   m_ObjectHideFlags: 0
@@ -1929,6 +1970,9 @@ MonoBehaviour:
   panel: {fileID: 1361528165}
   canvas: {fileID: 693696628}
   isLeft: 0
+  isRight: 1
+  isTopLeft: 0
+  isTopRight: 0
 --- !u!1 &1401234616
 GameObject:
   m_ObjectHideFlags: 0

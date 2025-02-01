@@ -41,6 +41,11 @@ public class PlayerController : MonoBehaviour
     public int dist_adapt = 50;
     private float dist_since_adapt =0;
     private int obstacleCount =0;
+    
+    private int len_time_buffer_paddle = 10;
+    private List<double> time_buffer_paddle = new List<double>();
+    private bool just_paddled = false;
+    private float optimal_time;
 
     //fin du jeu
     private float gameTime = 0f;  // Temps écoulé
@@ -65,6 +70,7 @@ public class PlayerController : MonoBehaviour
         gameOverScreen.SetActive(false);
         ended=false;
 
+        optimal_time = time_before_paddle*len_time_buffer_paddle;
     }
 
     void Update()
@@ -153,10 +159,14 @@ public class PlayerController : MonoBehaviour
                 Flip(false);
             }
             paddle(Vector2.left);
-            Debug.Log("Paddle right " + time_since_right_true);
+            // Debug.Log("Paddle right " + time_since_right_true);
             time_since_right_true = 0;
             can_paddle_left = true;
             can_paddle_right = false;
+
+            // Recuperer le temps machine de ce coup
+            time_buffer_paddle.Add(Time.time);
+            just_paddled = true;
         }
 
         // Coup de pagaie à gauche
@@ -167,10 +177,14 @@ public class PlayerController : MonoBehaviour
                 Flip(true);
             }
             paddle(Vector2.right);
-            Debug.Log("Paddle left " + time_since_left_true);
+            // Debug.Log("Paddle left " + time_since_left_true);
             time_since_left_true = 0;
             can_paddle_left = false;
             can_paddle_right = true;
+
+            // Recuperer le temps machine de ce coup
+            time_buffer_paddle.Add(Time.time);
+            just_paddled = true;
         }
 
         // Met à jour les barres de progression
@@ -190,6 +204,22 @@ public class PlayerController : MonoBehaviour
             rightBarScript.UpdateProgress(time_redo_same-time_since_right_false, time_redo_same, false);
         }
 
+        // MAJ coordination
+        if (just_paddled){
+            just_paddled = false;
+            // Si il y a au moins 10 coups de pagaie dans le buffer
+            if (time_buffer_paddle.Count < 10) return;
+
+            // Si le buffer contient trop de coups de pagaie on retire le plus ancien
+            if (time_buffer_paddle.Count > 10) time_buffer_paddle.RemoveAt(0);
+
+            double oldestTime = time_buffer_paddle[0];
+            double newestTime = time_buffer_paddle[^1];
+            double timeDiff = newestTime - oldestTime;
+            double ratio = optimal_time / timeDiff;
+            playerModel.coordinationLevel = Mathf.Min(Mathf.Max((float)ratio, 0.0f), 1.0f);
+        }
+        
     }
 
     void Flip(bool flip)

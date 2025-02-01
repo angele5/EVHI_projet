@@ -7,7 +7,9 @@ public class DynamicPanelResizer : MonoBehaviour
     public RectTransform panel; // Référence au RectTransform du Panel
     public Canvas canvas;       // Référence au Canvas (optionnel si nécessaire)
     public bool isLeft = true;  // Coller le bord gauche ou droit
-
+    public bool isRight = false; // Coller le bord droit
+    public bool isTopLeft = false; // Coller le bord haut gauche
+    public bool isTopRight = false; // Coller le bord haut droit
     void Start()
     {
         ResizePanel();
@@ -39,12 +41,31 @@ public class DynamicPanelResizer : MonoBehaviour
                 float panelX = virtualWidth/2;
                 panel.transform.position = new Vector3(panelX, canvasHeight/2, 0);
             }
-            else
+            if (isRight)
             {   
                 float virtualWidth = panel.rect.width * xscaleratio;
                 float panelX = virtualWidth/2;
                 panelX -= canvasWidth;
                 panel.transform.position = new Vector3(-panelX, canvasHeight/2, 0);
+            }
+            if (isTopLeft)
+            {
+                float virtualHeight = panel.rect.height * yscaleratio;
+                float virtualWidth = panel.rect.width * xscaleratio;
+                float xOffSet = 113 * xscaleratio + virtualWidth/2; // 113 est la largeur du panel
+                float panelX = virtualWidth/2 + xOffSet;
+                float panelY = canvasHeight - virtualHeight/2;
+                panel.transform.position = new Vector3(panelX, panelY, 0);
+            }
+            if (isTopRight)
+            {
+                float virtualHeight = panel.rect.height * yscaleratio;
+                float virtualWidth = panel.rect.width * xscaleratio;
+                float xOffSet = 113 * xscaleratio + virtualWidth/2; // 113 est la largeur du panel
+                float panelX = virtualWidth/2 + xOffSet;
+                float panelY = canvasHeight - virtualHeight/2;
+                panelX -= canvasWidth;
+                panel.transform.position = new Vector3(-panelX, panelY, 0);
             }
 
         }
