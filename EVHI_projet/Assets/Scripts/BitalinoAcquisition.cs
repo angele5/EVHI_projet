@@ -57,7 +57,7 @@ public class BitalinoScript : MonoBehaviour
         // Create the Butterworth filters
         leftFilter = new ButterworthFilter(samplingRate, LOW_CUTOFF, HIGH_CUTOFF);
         rightFilter = new ButterworthFilter(samplingRate, LOW_CUTOFF, HIGH_CUTOFF);
-
+        playerModel.isConnected = false;
     }
 
     // Update function, being constantly invoked by Unity.
@@ -229,6 +229,7 @@ public class BitalinoScript : MonoBehaviour
     // data -> Package of data containing the RAW data samples collected from each active channel ([sample_first_active_channel, sample_second_active_channel,...]).
     public void OnDataReceived(int nSeq, int[] data)
     {
+        playerModel.isConnected = true;
 
         double channel1 = data[0]; // left quality
         double channel2 = data[1]; // Left arm

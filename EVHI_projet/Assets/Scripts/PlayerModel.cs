@@ -17,5 +17,5 @@ public class PlayerModel : MonoBehaviour
 
     public int score;
 
-
+    public bool isConnected = true;
 }

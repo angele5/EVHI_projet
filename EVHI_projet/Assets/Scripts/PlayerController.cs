@@ -55,6 +55,9 @@ public class PlayerController : MonoBehaviour
     public TextMeshProUGUI timerText;
     public TextMeshProUGUI EndscoreText;
 
+    // Panel de connexion
+    public GameObject connectionPanel;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -70,10 +73,22 @@ public class PlayerController : MonoBehaviour
         gameOverScreen.SetActive(false);
         ended=false;
         optimal_time = time_before_paddle*len_time_buffer_paddle;
+        playerModel.isConnected = true;
     }
 
     void Update()
     {
+        if (!playerModel.isConnected)
+        {
+            Time.timeScale = 0f;
+            connectionPanel.SetActive(true);
+        }
+        else
+        {
+            connectionPanel.SetActive(false);
+            Time.timeScale = 1f;
+        }
+
         if(!ended){
 
             if (playerModel.fatigue && !isFatigueCoroutineRunning)
