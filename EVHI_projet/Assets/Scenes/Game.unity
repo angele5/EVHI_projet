@@ -1566,6 +1566,7 @@ MonoBehaviour:
   gameOverScreen: {fileID: 227136050}
   timerText: {fileID: 1219433221}
   EndscoreText: {fileID: 390078076}
+  connectionPanel: {fileID: 952865629}
 --- !u!61 &710710618
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2503,6 +2504,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
+      - m_Target: {fileID: 710710619}
+        m_TargetAssemblyTypeName: BitalinoScript, Assembly-CSharp
+        m_MethodName: StopAcquisition
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
       - m_Target: {fileID: 227136054}
         m_TargetAssemblyTypeName: MenuController, Assembly-CSharp
         m_MethodName: StartGame
@@ -2704,6 +2717,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
+      - m_Target: {fileID: 710710619}
+        m_TargetAssemblyTypeName: BitalinoScript, Assembly-CSharp
+        m_MethodName: StopAcquisition
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
       - m_Target: {fileID: 227136054}
         m_TargetAssemblyTypeName: MenuController, Assembly-CSharp
         m_MethodName: QuitGame

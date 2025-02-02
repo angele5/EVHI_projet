@@ -97,13 +97,18 @@ public class PlayerController : MonoBehaviour
                 isFatigueCoroutineRunning = true;
             }
             handle_input();
-            gameTime += Time.deltaTime;
-            tps_since_adapt += Time.deltaTime;
+            if (!playerModel.fatigue) {
+                gameTime += Time.deltaTime;
+                tps_since_adapt += Time.deltaTime;
 
-            float timeLeft = Mathf.Max(maxGameTime - gameTime, 0);
-            int minutes = Mathf.FloorToInt(timeLeft / 60);
-            int seconds = Mathf.FloorToInt(timeLeft % 60);
-            timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+                float timeLeft = Mathf.Max(maxGameTime - gameTime, 0);
+                int minutes = Mathf.FloorToInt(timeLeft / 60);
+                int seconds = Mathf.FloorToInt(timeLeft % 60);
+                timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+            }else{
+                timerText.text = "FATIGUE";
+            }
+            
             
             if (gameTime >= maxGameTime)
             {
