@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour
     public float acceleration = 3f; // Force du coup de pagaie
     public float max_speed = 10f; // Vitesse maximale
     public float rotationForce = 0.4f; // Force de rotation par coup de pagaie
-    public float resistance = 0.98f; // Résistance de l'eau, réduit la vitesse progressivement
+    public float resistance = 0.98f; // Resistance de l'eau, diminue la vitesse progressivement
     public float time_before_paddle = 0.5f; // Temps avant de pouvoir donner un autre
     public float time_redo_same = 0.3f; // Temps avant de pouvoir donner un autre coup de pagaie dans la même direction
     public bool can_paddle_left = true;
@@ -78,21 +78,18 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if (!playerModel.isConnected)
-        {
+        if (!playerModel.isConnected){
             Time.timeScale = 0f;
             connectionPanel.SetActive(true);
         }
-        else
-        {
+        else{
             connectionPanel.SetActive(false);
             Time.timeScale = 1f;
         }
 
         if(!ended){
 
-            if (playerModel.fatigue && !isFatigueCoroutineRunning)
-            {
+            if (playerModel.fatigue && !isFatigueCoroutineRunning){
                 StartCoroutine(HandleFatigue());
                 isFatigueCoroutineRunning = true;
             }
@@ -105,8 +102,7 @@ public class PlayerController : MonoBehaviour
             int seconds = Mathf.FloorToInt(timeLeft % 60);
             timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
             
-            if (gameTime >= maxGameTime)
-            {
+            if (gameTime >= maxGameTime){
                 EndGame();
             }
 
@@ -140,48 +136,40 @@ public class PlayerController : MonoBehaviour
     {
         // Gestion des inputs
         // Si on appuie sur la touche droite
-        if (Input.GetKey(KeyCode.RightArrow) || playerModel.isRight)
-        {
+        if (Input.GetKey(KeyCode.RightArrow) || playerModel.isRight){
             time_since_right_true += Time.deltaTime;
             time_since_left_true = 0;
             time_since_right_false = 0;
         }
-        else
-        {
+        else{
             time_since_right_true = 0;
             time_since_right_false += Time.deltaTime;
         }
 
         // Si on appuie sur la touche gauche
-        if (Input.GetKey(KeyCode.LeftArrow) || playerModel.isLeft)
-        {
+        if (Input.GetKey(KeyCode.LeftArrow) || playerModel.isLeft){
             time_since_left_true += Time.deltaTime;
             time_since_right_true = 0;
             time_since_left_false = 0;
         }
-        else
-        {
+        else{
             time_since_left_true = 0;
             time_since_left_false += Time.deltaTime;
         }
 
         // Si ca fait assez longtemps qu'on a pas appuyé sur une touche, on peut donner un autre coup de pagaie
-        if (time_since_left_false > time_redo_same)
-        {
+        if (time_since_left_false > time_redo_same){
             can_paddle_left = true;
         }
 
-        if (time_since_right_false > time_redo_same)
-        {
+        if (time_since_right_false > time_redo_same){
             can_paddle_right = true;
         }
 
 
         // Coup de pagaie droite
-        if (time_since_right_true > time_before_paddle && can_paddle_right)
-        {
-            if (is_flip)
-            {
+        if (time_since_right_true > time_before_paddle && can_paddle_right){
+            if (is_flip){
                 Flip(false);
             }
             paddle(Vector2.left);
@@ -196,10 +184,8 @@ public class PlayerController : MonoBehaviour
         }
 
         // Coup de pagaie à gauche
-        if (time_since_left_true > time_before_paddle && can_paddle_left)
-        {
-            if (!is_flip)
-            {
+        if (time_since_left_true > time_before_paddle && can_paddle_left){
+            if (!is_flip){
                 Flip(true);
             }
             paddle(Vector2.right);
@@ -214,19 +200,15 @@ public class PlayerController : MonoBehaviour
         }
 
         // Met à jour les barres de progression
-        if (can_paddle_left)
-        {
+        if (can_paddle_left){
             leftBarScript.UpdateProgress(time_since_left_true, time_before_paddle, true);
-        }else
-        {
+        }else{
             leftBarScript.UpdateProgress(time_redo_same-time_since_left_false, time_redo_same, false);
         }
 
-        if (can_paddle_right)
-        {
+        if (can_paddle_right){
             rightBarScript.UpdateProgress(time_since_right_true, time_before_paddle, true);
-        }else
-        {
+        }else{
             rightBarScript.UpdateProgress(time_redo_same-time_since_right_false, time_redo_same, false);
         }
 
@@ -258,25 +240,22 @@ public class PlayerController : MonoBehaviour
     {
         float rotation;
 
-        if (isTouchingObstacle && Vector2.Dot(transform.up, Vector2.up) > 0.7f) // Kayak vers le haut
-        {
+        if (isTouchingObstacle && Vector2.Dot(transform.up, Vector2.up) > 0.7f){ // Kayak vers le haut
             Vector2 obstacleDir = ((Vector2)transform.position - obstaclePosition).normalized;
 
-            // Détermine si le coup de pagaie est du côté de l'obstacle
-            if ((direction == Vector2.left && obstacleDir.x < 0) || (direction == Vector2.right && obstacleDir.x > 0))
-            {
-                // Pousse légèrement vers l'opposé de l'obstacle
+            // coup de pagaie du cote de obstacle
+            if ((direction == Vector2.left && obstacleDir.x < 0) || (direction == Vector2.right && obstacleDir.x > 0)){
+                //  vers inverse obstacle
                 rb.AddForce(obstacleDir * knockbackForce, ForceMode2D.Impulse);
-                return; // On empêche le mouvement normal pour ce coup
+                return;
             }
         }
-        // Applique avance
-        if (rb.velocity.magnitude < max_speed)
-        {
+        //  avance
+        if (rb.velocity.magnitude < max_speed){
             rb.AddForce(transform.up * acceleration, ForceMode2D.Impulse);
         }
 
-        // Applique rotation
+        //  rotation
         if (direction == Vector2.right){
             rotation =  -rotationForce;
         }
@@ -288,7 +267,7 @@ public class PlayerController : MonoBehaviour
 
     void apply_resistance()
     {
-        // reduit vitesse lineaire et angulaire pour simuler la résistance de l'eau
+        // reduit vitesse lineaire et angulaire pour simuler la resistance de l'eau
         rb.velocity *= resistance;
         rb.angularVelocity *= resistance;
     }
@@ -297,12 +276,12 @@ public class PlayerController : MonoBehaviour
     {
         float distanceTravelled = Vector2.Distance(previousPosition, rb.position);
 
-        float speedFactor = rb.velocity.magnitude; // Plus la vitesse est élevée, plus le score augmente rapidement
+        float speedFactor = rb.velocity.magnitude; // Plus vite, plus le score augmente
         
-        float scoreIncrement = distanceTravelled * speedFactor * 5f * (1f + playerModel.coordinationLevel); // Score = distance * vitesse * 5
+        float scoreIncrement = distanceTravelled * speedFactor * 5f * (1f + playerModel.coordinationLevel); // Score = distance * vitesse * 5 *coord
 
         playerModel.score += Mathf.RoundToInt(scoreIncrement);
-        previousPosition = rb.position; // Mettre à jour la position précédente
+        previousPosition = rb.position; // MaJ la position précédente
 
         scoreText.text = ""+Mathf.RoundToInt(playerModel.score);
     }
@@ -316,9 +295,9 @@ public class PlayerController : MonoBehaviour
         }
         
         resistance = Mathf.Max(Mathf.Min(resistance - playerModel.dodgeLevel*0.00002f - playerModel.coordinationLevel * 0.001f, 1.5f),0.95f); //
-        Debug.Log("resistance"+resistance);
-        Debug.Log("dodgeLevel"+playerModel.dodgeLevel);
-        Debug.Log("coord"+playerModel.coordinationLevel);
+       // Debug.Log("resistance"+resistance);
+        //Debug.Log("dodgeLevel"+playerModel.dodgeLevel);
+        //Debug.Log("coord"+playerModel.coordinationLevel);
     }
 
     IEnumerator HandleFatigue()
@@ -351,26 +330,26 @@ public class PlayerController : MonoBehaviour
 
             Vector2 river_center_dir = (new Vector2(0, 10) - (Vector2)transform.position).normalized;
 
-            // Vérifier si le kayak est à l'envers (tête en bas)
+            //  kayak est a l envers 
             float angleWithUp = Vector2.SignedAngle(transform.up, Vector2.up);
             
-            if (Mathf.Abs(angleWithUp) > 120f) // Si le kayak est quasiment à l'envers
-            {
-                // Réinitialisation du kayak au centre avec la tête en haut
+            if (Mathf.Abs(angleWithUp) > 120f){ //  kayak est presque inverse
+            
+                // Reinit kayak au centre vers le haut
                 rb.velocity = Vector2.zero;
                 rb.angularVelocity = 0f;
-                transform.rotation = Quaternion.Euler(0, 0, 0); // Aligné vers le haut
+                transform.rotation = Quaternion.Euler(0, 0, 0);
                 
-                // Pénaliser le joueur
+                // penalisation joueur
                 playerModel.score -= 10;
 
-                return; // Sortir de la fonction pour éviter d'appliquer d'autres forces
+                return;
             }
 
 
             Vector2 knockbackDirection = (transform.position - collision.transform.position).normalized;
             rb.velocity = Vector2.zero;
-            // Applique une force de recul au Rigidbody2D du joueur
+            // recul au rb  joueur
             rb.AddForce(knockbackDirection * knockbackForce, ForceMode2D.Impulse);
 
         }

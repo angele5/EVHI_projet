@@ -22,86 +22,78 @@ public class RiverGenerator : MonoBehaviour
 
     //fleurs
     public GameObject flowerPrefab;  // Prefab pour la fleur
-    public float flowerOffset = 1.5f; // Distance à laquelle les fleurs apparaissent de chaque côté
+    public float flowerOffset = 1.5f; // Distance fleurs apparaissent
     public int maxFlowersPerSegment = 5; 
-    List<GameObject> flowers = new List<GameObject>(); // Liste des fleurs
+    List<GameObject> flowers = new List<GameObject>(); // Liste fleurs
 
 
     // Paramètres de génération de la rivière
-    public float segmentLength = 2f;  // Longueur entre chaque segment
+    public float segmentLength = 2f;  // Longueur entre segments
     public float segemntWidth = 6f;
-    public float curveIntensity = 5f;  // Intensité de la courbure
-    public int initialSegments = 10;  // Nombre de segments au départ
-    public float distanceBeforeDestroy = 20f; // Distance avant qu'une section de rivière soit détruite
-    public float distanceBeforeGenerate = 10f; // Distance avant de générer une nouvelle section de rivière
-
-    private List<Vector2> leftPoints = new List<Vector2>(); // Liste des points de la berge gauche
-    private List<Vector2> rightPoints = new List<Vector2>(); // Liste des points de la berge droite
-    private Mesh riverMesh; // Le maillage pour la surface de la rivière
-    private float lastPlayerYPos; // Dernière position Y du joueur
+    public float curveIntensity = 5f;  // intensite courbure
+    public int initialSegments = 10;  // Nombre de segments init
+    public float distanceBeforeDestroy = 20f; // Distance avant destruction
+    public float distanceBeforeGenerate = 10f; // Distance avant generation
+    private List<Vector2> leftPoints = new List<Vector2>(); // Liste points rive gauche
+    private List<Vector2> rightPoints = new List<Vector2>(); // Liste points rive droite
+    private Mesh riverMesh; // surface de la riviere
+    private float lastPlayerYPos; // derniere position du joueur
     public PlayerModel playerModel;
 
     void Start()
     {
-        lastPlayerYPos = player.transform.position.y; // Sauvegarde la position Y du joueur au démarrage
+        lastPlayerYPos = player.transform.position.y; // Save position du joueur au start
         obstacleMinOffset = - segemntWidth /2 + 0.5f;
         obstacleMaxOffset =  segemntWidth /2 - 0.5f;
         maxObstacles = 0;
         proba0bs = 0.3f;
 
-        InitializeRiver(); // Initialise la rivière avec quelques segments
-        GenerateRiverMesh(); // Crée la surface de la rivière
+        InitializeRiver(); // init riviere
+        GenerateRiverMesh(); // creation surface riviere
 
     }
 
     void Update()
     {
-        // La rivière ne se déplace que lorsque le joueur se déplace
-        if (player.transform.position.y > lastPlayerYPos) // Si le joueur se déplace vers le bas (ou avance)
-        {
+        if (player.transform.position.y > lastPlayerYPos){ // Si joueur  avance
+        
             UpdateDiff();
-            RemoveOldSections(); // Supprime les anciens segments
-            GenerateRiverMesh(); // Met à jour le maillage de la rivière
+            RemoveOldSections(); // Supp anciens segments
+            GenerateRiverMesh(); // MAJ riviere
         }
 
-        // Sauvegarde la nouvelle position Y du joueur
         lastPlayerYPos = player.transform.position.y;
     }
 
     void UpdateDiff(){
 
-        if (playerModel.fatigue)
-        {
+        if (playerModel.fatigue){
             maxObstacles = 0;
             return;
         }
         float dodgeFactor = Mathf.Clamp01(playerModel.dodgeLevel / 20f); // Normalisation
         float coordFactor = playerModel.coordinationLevel;
 
-        // Nombre maximal augmente fortement avec la coordination et l'évitement
+        // Nombre maximal augmente avec la coord et dodge
         maxObstacles = Mathf.RoundToInt(25 * coordFactor * dodgeFactor); // Entre 0 et 20
 
-        // Probabilité d'apparition des obstacles : augmente progressivement
-        proba0bs = Mathf.Lerp(0.3f, 0.9f, coordFactor * dodgeFactor); // Entre 10% et 90%
+        // Proba apparition des obstacles
+        proba0bs = Mathf.Lerp(0.3f, 0.9f, coordFactor * dodgeFactor);
     }
 
     void InitializeRiver()
     {
-        float y = player.transform.position.y - 10; // Position de départ au niveau du joueur
+        float y = player.transform.position.y - 10;
 
-        for (int i = 0; i < initialSegments; i++)
-        {
-            // Calcule un offset symétrique pour les bords gauche et droit
+        for (int i = 0; i < initialSegments; i++){
             float xOffset = Mathf.Sin(i * 0.1f) * curveIntensity;
-
-            // Définit les points gauche et droit symétriques autour de x = 0
             leftPoints.Add(new Vector2(-segemntWidth + xOffset, y));
             rightPoints.Add(new Vector2(xOffset, y));
 
-            y += segmentLength; // Incrément de la position verticale
+            y += segmentLength;
         }
 
-        // Met à jour les LineRenderers et EdgeColliders
+        // MaJ LineRenderers et EdgeColliders
         UpdateLineRenderers();
         UpdateEdgeColliders();
     }
@@ -111,18 +103,15 @@ public class RiverGenerator : MonoBehaviour
         float y = leftPoints[leftPoints.Count - 1].y + segmentLength;
         float xOffset = Mathf.Sin(y * 0.1f) * curveIntensity;
 
-        // Ajout de points symétriques autour de x = 0
         leftPoints.Add(new Vector2(-segemntWidth + xOffset, y));
         rightPoints.Add(new Vector2(xOffset, y));
 
-        if (obstacles.Count < maxObstacles && Random.value < proba0bs)
-        {
+        if (obstacles.Count < maxObstacles && Random.value < proba0bs){
             CreateObstacle(y);
         }
 
         CreateFlowers(y);
 
-        // Met à jour les LineRenderers et EdgeColliders
         UpdateLineRenderers();
         UpdateEdgeColliders();
     }
@@ -130,13 +119,13 @@ public class RiverGenerator : MonoBehaviour
     void CreateObstacle(float yPosition)
     {
         int index = leftPoints.FindIndex(p => Mathf.Approximately(p.y, yPosition));
-        if (index == -1) return; // Sécurité : si l'index n'est pas trouvé, on ne crée pas d'obstacle
+        if (index == -1) return; // si index pas existe
 
-        // Prend les positions des berges à ce niveau
+        // positions rives niveau creation
         float leftX = leftPoints[index].x;
         float rightX = rightPoints[index].x;
 
-        // Génère un X entre la berge gauche et droite
+        //  X entre rives gauche et droite
         float xPosition = Random.Range(leftX + 3f, rightX +2f);        
             
         GameObject newObstacle = Instantiate(obstaclePrefab, new Vector3(xPosition, yPosition, -2), Quaternion.identity);
@@ -145,20 +134,20 @@ public class RiverGenerator : MonoBehaviour
     }
     void CreateFlowers(float yPosition)
     {
-        // Choix aléatoire du nombre de fleurs à générer pour ce segment
+        // Choix random nombre de fleurs à cree
         float leftX = leftPoints[leftPoints.Count - 1].x;
         float rightX = rightPoints[rightPoints.Count - 1].x;
 
         if (Random.value < 0.5f)
         {
-            float flowerXPosition = Random.Range(leftX +0.5f, leftX +1.5f); // A l'extérieur de la berge gauche
+            float flowerXPosition = Random.Range(leftX +0.5f, leftX +1.5f); // ext de la berge gauche
             GameObject flower = Instantiate(flowerPrefab, new Vector3(flowerXPosition, yPosition, -2), Quaternion.identity);
             flowers.Add(flower);
         }
 
         if (Random.value < 0.5f)
         {
-            float flowerXPosition = Random.Range(rightX + 3.5f, rightX + 4.5f); // A l'extérieur de la berge droite
+            float flowerXPosition = Random.Range(rightX + 3.5f, rightX + 4.5f); //ext de la berge droite
             GameObject flower = Instantiate(flowerPrefab, new Vector3(flowerXPosition, yPosition, -2), Quaternion.identity);
             flowers.Add(flower);
         }
@@ -166,93 +155,76 @@ public class RiverGenerator : MonoBehaviour
 
     void RemoveOldSections()
     {
-        // Supprime les sections qui sont trop éloignées du joueur (hors de la vue de la caméra)
-        if (leftPoints.Count > 0 && leftPoints[0].y < player.transform.position.y - distanceBeforeDestroy)
-        {
-            leftPoints.RemoveAt(0); // Retirer le premier point (le plus ancien)
-            rightPoints.RemoveAt(0); // Retirer le premier point (le plus ancien)
+        // Supp sections trop loin
+        if (leftPoints.Count > 0 && leftPoints[0].y < player.transform.position.y - distanceBeforeDestroy){
+            leftPoints.RemoveAt(0); 
+            rightPoints.RemoveAt(0); 
 
-            // Met à jour les LineRenderers et EdgeColliders
+            // MaJ LineRenderers et EdgeColliders
             UpdateLineRenderers();
             UpdateEdgeColliders();
         }
 
-        for (int i = obstacles.Count - 1; i >= 0; i--)  //parcours obstacles pour supp si trop bas
-        {
-            if (obstacles[i].transform.position.y < player.transform.position.y - distanceBeforeDestroy)
-            {
+        for (int i = obstacles.Count - 1; i >= 0; i--){  //parcours obstacles pour supp si trop bas
+            if (obstacles[i].transform.position.y < player.transform.position.y - distanceBeforeDestroy){
                 Destroy(obstacles[i]);
                 obstacles.RemoveAt(i);
             }
         }
 
-        for (int i = flowers.Count - 1; i >= 0; i--)  // Parcours fleurs pour les supprimer si elles sont trop loin
-        {
-            if (flowers[i].transform.position.y < player.transform.position.y - distanceBeforeDestroy)
-            {
+        for (int i = flowers.Count - 1; i >= 0; i--){  // Parcours fleurs pour supprimer si loin
+            if (flowers[i].transform.position.y < player.transform.position.y - distanceBeforeDestroy){
                 Destroy(flowers[i]);
                 flowers.RemoveAt(i);
             }
         }
 
-        // Générer de nouveaux segments si nécessaire
-        if (leftPoints[leftPoints.Count - 1].y < player.transform.position.y + distanceBeforeGenerate)
-        {
+        // creation nouveaux segments
+        if (leftPoints[leftPoints.Count - 1].y < player.transform.position.y + distanceBeforeGenerate){
             ExtendRiver();
         }
     }
 
     void UpdateLineRenderers()
     {
-        // Mise à jour du LineRenderer pour la berge gauche
+        // MaJ  LineRenderer pour  gauche
         leftLineRenderer.positionCount = leftPoints.Count;
-        for (int i = 0; i < leftPoints.Count; i++)
-        {
+        for (int i = 0; i < leftPoints.Count; i++){
             leftLineRenderer.SetPosition(i, leftPoints[i]);
         }
 
-        // Mise à jour du LineRenderer pour la berge droite
+        // MaJ  LineRenderer pour droite
         rightLineRenderer.positionCount = rightPoints.Count;
-        for (int i = 0; i < rightPoints.Count; i++)
-        {
+        for (int i = 0; i < rightPoints.Count; i++){
             rightLineRenderer.SetPosition(i, rightPoints[i]);
         }
     }
 
     void UpdateEdgeColliders()
     {
-        // Mise à jour des colliders avec les points des berges
         leftEdgeCollider.points = leftPoints.ToArray();
         rightEdgeCollider.points = rightPoints.ToArray();
     }
 
     void GenerateRiverMesh()
     {
-        // Si le maillage n'existe pas, créez-le
-        if (riverMesh == null)
-        {
+        if (riverMesh == null){
             riverMesh = new Mesh();
             riverMeshFilter.mesh = riverMesh;
         }
 
-        // Efface le maillage actuel pour éviter les problèmes de superposition
         riverMesh.Clear();
 
-        // Crée une liste de vertices (points) pour la surface de la rivière
         List<Vector3> vertices = new List<Vector3>();
-        for (int i = 0; i < leftPoints.Count; i++)
-        {
-            vertices.Add(leftPoints[i]);  // Ajoute un point pour la berge gauche
-            vertices.Add(rightPoints[i]); // Ajoute un point pour la berge droite
+        for (int i = 0; i < leftPoints.Count; i++){
+            vertices.Add(leftPoints[i]);  // add point gauche
+            vertices.Add(rightPoints[i]); // add point droite
         }
 
-        // Crée une liste d'indices pour définir les triangles (faces) du maillage
         List<int> triangles = new List<int>();
-        for (int i = 0; i < leftPoints.Count - 1; i++)
-        {
+        for (int i = 0; i < leftPoints.Count - 1; i++){
             int startIndex = i * 2;
 
-            // Crée des triangles pour la surface entre les deux bords
             triangles.Add(startIndex);
             triangles.Add(startIndex + 2);
             triangles.Add(startIndex + 1);
@@ -262,11 +234,9 @@ public class RiverGenerator : MonoBehaviour
             triangles.Add(startIndex + 3);
         }
 
-        // Crée des UVs (optionnel, pour appliquer des textures)
         List<Vector2> uvs = new List<Vector2>();
-        for (int i = 0; i < vertices.Count; i++)
-        {
-            uvs.Add(new Vector2(vertices[i].x, vertices[i].y)); // Définir les coordonnées UV
+        for (int i = 0; i < vertices.Count; i++){
+            uvs.Add(new Vector2(vertices[i].x, vertices[i].y)); 
         }
 
 
