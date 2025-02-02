@@ -90,7 +90,7 @@ public class BitalinoScript : MonoBehaviour
         if (!isAcquisitionStarted)
         {
             // Start the acquisition
-            pluxDevManager.StartAcquisitionUnity(samplingRate, new List<int> {1,2,3,4 }, resolution);
+            pluxDevManager.StartAcquisitionUnity(samplingRate, new List<int> {1,2 }, resolution);
             return;
         }
 
@@ -220,7 +220,7 @@ public class BitalinoScript : MonoBehaviour
         }
         // Debug.Log("Decreasing count: " + decreasingCount + " Total count: " + movingAverages.Count);
         // Considérer la fatigue si une tendance à la baisse est détectée
-        return decreasingCount > movingAverages.Count * 0.5; // x % des points doivent être en baisse
+        return decreasingCount > movingAverages.Count * 0.3; // x % des points doivent être en baisse
     }
 
 
@@ -231,40 +231,37 @@ public class BitalinoScript : MonoBehaviour
     {
         playerModel.isConnected = true;
 
-        double channel1 = data[0]; // left quality
-        double channel2 = data[1]; // Left arm
-        double channel3 = data[2]; // right quality
-        double channel4 = data[3]; // Right arm
+        double channel1 = data[0]; // left arm
+        double channel2 = data[1]; // right arm
+
 
         // Normalisation du signal en tension
-        channel2 = (channel2 - 512) * (3.3 / 1023.0);
-        channel4 = (channel4 - 512) * (3.3 / 1023.0);         
+        channel1 = (channel1 - 512) * (3.3 / 1023.0);
+        channel2 = (channel2 - 512) * (3.3 / 1023.0);         
 
         // Filtrage passe-bande
-        channel2 = leftFilter.Apply(channel2);
-        channel4 = rightFilter.Apply(channel4);
+        channel1 = leftFilter.Apply(channel1);
+        channel2 = rightFilter.Apply(channel2);
 
         // Valeur absolue
+        channel1 = Math.Abs(channel1);
         channel2 = Math.Abs(channel2);
-        channel4 = Math.Abs(channel4);
 
-        //Debug.Log("Left: " + channel2 + " Right: " + channel4);
+        //Debug.Log("Left: " + channel1 + " Right: " + channel2);
 
         // Add the new value to the left buffer
-        if (channel1 >= 0){
-            if (leftBuffer.Count == 50){
-                leftBuffer.RemoveAt(0);
-            }
-            leftBuffer.Add(channel2);
-        } 
+        if (leftBuffer.Count == 50){
+            leftBuffer.RemoveAt(0);
+        }
+        leftBuffer.Add(channel1);
+         
 
         // Add the new value to the right buffer
-        if (channel3 >= 0){
-            if (rightBuffer.Count == 50){
-                rightBuffer.RemoveAt(0);
-            }
-            rightBuffer.Add(channel4);
+        if (rightBuffer.Count == 50){
+            rightBuffer.RemoveAt(0);
         }
+        rightBuffer.Add(channel2);
+    
 
         double leftRMS = -10;
         if (leftBuffer.Count > 0)
@@ -324,15 +321,20 @@ public class BitalinoScript : MonoBehaviour
         }
 
         bool fatigueLeft = false;
-        if (addedLeft){
-            addedLeft = false;
-            fatigueLeft = DetectFatigue(leftContractions);
-        }
-
         bool fatigueRight = false;
-        if (addedRight){
+        if (addedLeft || addedRight){
+            addedLeft = false;
             addedRight = false;
+            fatigueLeft = DetectFatigue(leftContractions);
             fatigueRight = DetectFatigue(rightContractions);
+
+
+        }
+        if (fatigueLeft){
+            Debug.Log("Fatigue a gauche");
+        }
+        if (fatigueRight){
+            Debug.Log("Fatigue a droite");
         }
 
         if (fatigueLeft && fatigueRight){
@@ -373,6 +375,19 @@ public class BitalinoScript : MonoBehaviour
             // PluxDeviceManager.PluxDigInUpdateEvent digInEvent = (pluxEvent as PluxDeviceManager.PluxDigInUpdateEvent);
             // Debug.Log("Digital Input Update Event Detected on channel " + digInEvent.channel + ". Current state: " + digInEvent.state);
         }
+    }
+
+    public void StopAcquisition()
+    {
+        if (pluxDevManager != null)
+        {
+            pluxDevManager.StopAcquisitionUnity(-1);
+            Debug.Log("Acquisition stopped");
+            // Deconnect from the device
+            pluxDevManager.DisconnectPluxDev();
+            Debug.Log("Disconnected from device");
+        }
+    
     }
 }
 
