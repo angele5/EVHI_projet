@@ -323,26 +323,24 @@ public class BitalinoScript : MonoBehaviour
             }
         }
 
+        bool fatigueLeft = false;
         if (addedLeft){
             addedLeft = false;
-            bool fatigueLeft = DetectFatigue(leftContractions);
-            if (fatigueLeft)
-            {
-                Debug.Log("Fatigue détectée à gauche");
-            }
-
+            fatigueLeft = DetectFatigue(leftContractions);
         }
 
+        bool fatigueRight = false;
         if (addedRight){
             addedRight = false;
-            bool fatigueRight = DetectFatigue(rightContractions);
-            if (fatigueRight)
-            {
-                Debug.Log("Fatigue détectée à droite");
-            }
-
+            fatigueRight = DetectFatigue(rightContractions);
         }
 
+        if (fatigueLeft && fatigueRight){
+            playerModel.fatigue = true;
+            // reset the contractions
+            leftContractions.Clear();
+            rightContractions.Clear();
+        }
         // Debug Nombre de contractions
         // Debug.Log("Left contractions: " + leftContractions.Count + " Right contractions: " + rightContractions.Count);
         // // Show the current package of data.
